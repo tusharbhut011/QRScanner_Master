@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\QRScannerService_Core",
+    "\\QRScannerService_Core\\Interfaces",
+    "\\QRScannerService_GUI",
+    "\\QRScannerService_GUI\\Forms",
+    "\\QRScannerService_GUI\\Helpers"
+  ],
+  "SelectedNode": "\\QRScannerService_GUI",
+  "PreviewInSolutionExplorer": false
+}

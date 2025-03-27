@@ -1,0 +1,4 @@
+D:\QR Project\V0\QRScannerService\QRScannerService_WindowsService\obj\Debug\QRScannerService_WindowsService.csproj.AssemblyReference.cache
+D:\QR Project\V0\QRScannerService\QRScannerService_WindowsService\obj\Debug\QRScannerService_WindowsService.csproj.SuggestedBindingRedirects.cache
+D:\QR Project\V0\QRScannerService\QRScannerService_WindowsService\obj\Debug\QRScannerService_WindowsService.exe.config
+D:\QR Project\V0\QRScannerService\QRScannerService_WindowsService\obj\Debug\QRScannerService_WindowsService.csproj.CoreCompileInputs.cache

@@ -1,0 +1,23 @@
+﻿<Project>
+  <PropertyGroup>
+    <XunitStartupFullName Condition="'$(XunitStartupFullName)' == '' AND '$(XunitStartupAssembly)' == ''">$(AssemblyName).Startup</XunitStartupFullName>
+    <XunitStartupFullName Condition="'$(XunitStartupFullName)' == '' AND '$(XunitStartupAssembly)' != ''">$(XunitStartupAssembly).Startup</XunitStartupFullName>
+    <NoWarn>$(NoWarn);xUnit1028;xUnit1012;xUnit1041</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="Xunit.TestFramework"
+                       Condition="'$(EnableXunitDependencyInjectionDefaultTestFrameworkAttribute)' == '' OR '$(EnableXunitDependencyInjectionDefaultTestFrameworkAttribute)' == 'true'">
+      <_Parameter1 Condition="'$(ParallelizationMode)' != 'true' AND '$(ParallelizationMode)' != 'enhance' AND '$(ParallelizationMode)' != 'force'">Xunit.DependencyInjection.DependencyInjectionTestFramework</_Parameter1>
+      <_Parameter1 Condition="'$(ParallelizationMode)' == 'true' OR '$(ParallelizationMode)' == 'enhance'">Xunit.DependencyInjection.DependencyInjectionEnhancedParallelizationTestFramework</_Parameter1>
+      <_Parameter1 Condition="'$(ParallelizationMode)' == 'force'">Xunit.DependencyInjection.DependencyInjectionForcedParallelizationTestFramework</_Parameter1>
+      <_Parameter2>Xunit.DependencyInjection</_Parameter2>
+    </AssemblyAttribute>
+
+    <AssemblyAttribute Include="Xunit.DependencyInjection.StartupType"
+                       Condition="'$(EnableXunitDependencyInjectionDefaultStartupTypeAttribute)' == '' OR '$(EnableXunitDependencyInjectionDefaultStartupTypeAttribute)' == 'true'">
+      <_Parameter1>$(XunitStartupFullName)</_Parameter1>
+      <_Parameter2 Condition="'$(XunitStartupAssembly)' != ''">$(XunitStartupAssembly)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>

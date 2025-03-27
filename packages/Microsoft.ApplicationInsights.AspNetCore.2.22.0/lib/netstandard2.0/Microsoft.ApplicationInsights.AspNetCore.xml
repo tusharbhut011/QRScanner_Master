@@ -1,0 +1,1567 @@
+<?xml version="1.0"?>
+<doc xml:lang="en">
+    <assembly>
+        <name>Microsoft.ApplicationInsights.AspNetCore</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.ExceptionUtilities">
+            <summary>
+            Utility functions for dealing with exceptions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.ExceptionUtilities.GetExceptionDetailString(System.Exception)">
+            <summary>
+            Get the string representation of this Exception with special handling for AggregateExceptions.
+            </summary>
+            <param name="ex">The exception to convert to a string.</param>
+            <returns>Returns a string representing the Exception message, and call stack.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HeadersUtilities">
+            <summary>
+            Generic functions that can be used to get and set Http headers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HeadersUtilities.GetHeaderKeyValue(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Get the key value from the provided HttpHeader value that is set up as a comma-separated list of key value pairs. Each key value pair is formatted like (key)=(value).
+            </summary>
+            <param name="headerValues">The header values that may contain key name/value pairs.</param>
+            <param name="keyName">The name of the key value to find in the provided header values.</param>
+            <returns>The first key value, if it is found. If it is not found, then null.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HeadersUtilities.SetHeaderKeyValue(System.String[],System.String,System.String)">
+            <summary>
+            Given the provided list of header value strings, return a comma-separated list of key
+            name/value pairs with the provided keyName and keyValue. If the initial header value
+            string contains the key name, then the original key value should be replaced with the
+            provided key value. If the initial header value strings don't contain the key name,
+            then the key name/value pair should be added to the comma-separated list and returned.
+            </summary>
+            <param name="currentHeaders">The existing header values that the key/value pair should be added to.</param>
+            <param name="key">The name of the key to add.</param>
+            <param name="value">The value of the key to add.</param>
+            <returns>The result of setting the provided key name/value pair into the provided headerValues.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HeadersUtilities.SanitizeString(System.String)">
+            <summary>
+            Http Headers only allow Printable US-ASCII characters.
+            Remove all other characters.
+            </summary>
+            <param name="input">String to be sanitized.</param>
+            <returns>sanitized string.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HeadersUtilities.HeaderMatchesKey(System.String,System.String)">
+            <summary>
+            Check if the header contains the key, case insensitve, ignore leading and trailing whitepsaces.
+            </summary>
+            <param name="headerValue">A header value that might contains key value pair.</param>
+            <param name="key">The key to match.</param>
+            <returns>Return true when the key matches and return false with it doens't.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener">
+            <summary>
+            <see cref="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.IApplicationInsightDiagnosticListener"/> implementation that listens for events specific to AspNetCore hosting layer.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.LegacyRootIdProperty">
+            <summary>
+            Name of custom property to store the legacy RootId when operating in W3C mode. Backend/UI understands this property.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.aspNetCoreMajorVersion">
+            <summary>
+            This class need to be aware of the AspNetCore major version.
+            This will affect what DiagnosticSource events we receive.
+            To support AspNetCore 1.0,2.0,3.0 we listen to both old and new events.
+            If the running AspNetCore version is 2.0 or 3.0, both old and new events will be sent. In this case, we will ignore the old events.
+            Also 3.0 is W3C Tracing Aware (i.e it populates Activity from traceparent headers) and hence SDK need to be aware.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.#ctor(Microsoft.ApplicationInsights.TelemetryClient,Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider,System.Boolean,System.Boolean,System.Boolean,Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener"/> class.
+            </summary>
+            <param name="client"><see cref="T:Microsoft.ApplicationInsights.TelemetryClient"/> to post traces to.</param>
+            <param name="applicationIdProvider">Provider for resolving application Id to be used in multiple instruemntation keys scenarios.</param>
+            <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
+            <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
+            <param name="enableW3CHeaders">Flag that indicates that W3C header parsing should be enabled.</param>
+            <param name="aspNetCoreMajorVersion">Major version of AspNetCore.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.#ctor(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration,Microsoft.ApplicationInsights.TelemetryClient,Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider,System.Boolean,System.Boolean,System.Boolean,Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener"/> class.
+            </summary>
+            <param name="configuration"><see cref="T:Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration"/> as a settings source.</param>
+            <param name="client"><see cref="T:Microsoft.ApplicationInsights.TelemetryClient"/> to post traces to.</param>
+            <param name="applicationIdProvider">Provider for resolving application Id to be used in multiple instruemntation keys scenarios.</param>
+            <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
+            <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
+            <param name="enableW3CHeaders">Flag that indicates that W3C header parsing should be enabled.</param>
+            <param name="aspNetCoreMajorVersion">Major version of AspNetCore.</param>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.ListenerName">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnBeforeAction(Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event.
+            </summary>
+            <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+            <param name="routeValues">Used to get the name of the request.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnSubscribe">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnHttpRequestInStart(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Start' event.
+            This is from 2.XX and higher runtime.
+            </summary>
+            <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnHttpRequestInStop(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop' event.
+            This is from 2.XX and higher runtime.
+            </summary>
+            <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnDiagnosticsHandledException(Microsoft.AspNetCore.Http.HttpContext,System.Exception)">
+            <summary>
+            Diagnostic event handler method for 'Microsoft.AspNetCore.Diagnostics.HandledException' event.
+            </summary>
+            <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+            <param name="exception">Used to create exception telemetry.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnDiagnosticsUnhandledException(Microsoft.AspNetCore.Http.HttpContext,System.Exception)">
+            <summary>
+            Diagnostic event handler method for 'Microsoft.AspNetCore.Diagnostics.UnhandledException' event.
+            </summary>
+            <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+            <param name="exception">Used to create exception telemetry.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnNext(System.Collections.Generic.KeyValuePair{System.String,System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnError(System.Exception)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HostingDiagnosticListener.OnCompleted">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HttpHeadersUtilities">
+            <summary>
+            This class contains several utility methods for working with Http Headers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HttpHeadersUtilities.GetHeaderValues(Microsoft.AspNetCore.Http.IHeaderDictionary,System.String)">
+            <summary>
+            Get all values of a header by name.
+            </summary>
+            <param name="headers">Collection of Http Headers.</param>
+            <param name="headerName">Header name.</param>
+            <returns>Returns a collection of values matching the header name.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HttpHeadersUtilities.GetHeaderKeyValue(Microsoft.AspNetCore.Http.IHeaderDictionary,System.String,System.String)">
+            <summary>
+            Get the Header Value matching a Name and Key.
+            </summary>
+            <param name="headers">Collection of Http Headers.</param>
+            <param name="headerName">Header name.</param>
+            <param name="keyName">Key name.</param>
+            <returns>The first key value, if it is found. If it is not found, then null.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HttpHeadersUtilities.GetRequestContextKeyValue(Microsoft.AspNetCore.Http.IHeaderDictionary,System.String)">
+            <summary>
+            Get a key value from the Request Context header.
+            </summary>
+            <param name="headers">Collection of Http Headers.</param>
+            <param name="keyName">Key name.</param>
+            <returns>The first key value, if it is found. If it is not found, then null.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HttpHeadersUtilities.ContainsRequestContextKeyValue(Microsoft.AspNetCore.Http.IHeaderDictionary,System.String)">
+            <summary>
+            Checks if a specified key exists in the Request Context Header.
+            </summary>
+            <param name="headers">Collection of Http Headers.</param>
+            <param name="keyName">Key name.</param>
+            <returns>Returns a boolean indicating if the key exists.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HttpHeadersUtilities.SetRequestContextKeyValue(Microsoft.AspNetCore.Http.IHeaderDictionary,System.String,System.String)">
+            <summary>
+            Sets a value on the Request Context Headers.
+            </summary>
+            <param name="headers">Collection of Http Headers.</param>
+            <param name="keyName">Key name to set.</param>
+            <param name="keyValue">Key value to set.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HttpHeadersUtilities.SetHeaderKeyValue(Microsoft.AspNetCore.Http.IHeaderDictionary,System.String,System.String,System.String)">
+            <summary>
+            Sets a key value on the Http Headers.
+            </summary>
+            <param name="headers">Collection of Http Headers.</param>
+            <param name="headerName">Http Header name.</param>
+            <param name="keyName">Key name to set.</param>
+            <param name="keyValue">Key value to set.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.HttpHeadersUtilities.SafeGetCommaSeparatedHeaderValues(Microsoft.AspNetCore.Http.IHeaderDictionary,System.String,System.Int32,System.Int32)">
+            <summary>
+            Get the values from an Http Header.
+            </summary>
+            <param name="headers">Collection of Http Headers.</param>
+            <param name="headerName">Http header name.</param>
+            <param name="maxLength">Max length of return values.</param>
+            <param name="maxItems">Max count of return values.</param>
+            <returns>Returns an array of the Http values.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.IApplicationInsightDiagnosticListener">
+            <summary>
+            Base diagnostic listener type for Application Insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.IApplicationInsightDiagnosticListener.ListenerName">
+            <summary>
+            Gets a value indicating which listener this instance should be subscribed to.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.IApplicationInsightDiagnosticListener.OnSubscribe">
+            <summary>
+            Notifies listener that it is subscribed to DiagnosticSource.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.MvcDiagnosticsListener">
+            <summary>
+            <see cref="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.IApplicationInsightDiagnosticListener"/> implementation that listens for events specific to AspNetCore Mvc layer.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.MvcDiagnosticsListener.ListenerName">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.MvcDiagnosticsListener.OnBeforeAction(Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.MvcDiagnosticsListener.OnSubscribe">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.MvcDiagnosticsListener.OnNext(System.Collections.Generic.KeyValuePair{System.String,System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.MvcDiagnosticsListener.OnError(System.Exception)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.MvcDiagnosticsListener.OnCompleted">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.MvcDiagnosticsListener.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation.PropertyFetcher">
+            <summary>
+            Efficient implementation of fetching properties of anonymous types with reflection.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation.PropertyFetcher.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation.PropertyFetcher"/> class.
+            </summary>
+            <param name="propertyName">Name of the property this instance will be responsible for.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation.PropertyFetcher.Fetch(System.Object)">
+            <summary>
+            Fetch the property from a provided object.
+            </summary>
+            <param name="obj">Anonymous object to fetch from.</param>
+            <returns>Returns the value of the property if it exists in the provided object. Otherwise returns null.</returns>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation.PropertyFetcher.PropertyFetch.Type">
+            <summary>
+            Gets the type of the object that the property is fetched from. For well-known static methods that
+            aren't actually property getters this will return null.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation.PropertyFetcher.PropertyFetch.FetcherForProperty(System.Type,System.Reflection.PropertyInfo)">
+            <summary>
+            Create a property fetcher from a .NET Reflection PropertyInfo class that
+            represents a property of a particular type.  
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation.PropertyFetcher.PropertyFetch.Fetch(System.Object)">
+            <summary>
+            Given an object, fetch the property that this propertyFetch represents.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders">
+            <summary>
+            Header names for requests / responses.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders.RequestContextHeader">
+            <summary>
+            Request-Context header.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders.RequestContextSourceKey">
+            <summary>
+            Source key in the request context header that is added by an application while making http requests and retrieved by the other application when processing incoming requests.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders.RequestContextTargetKey">
+            <summary>
+            Target key in the request context header that is added to the response and retrieved by the calling application when processing incoming responses.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders.RequestIdHeader">
+            <summary>
+            Request-Id header.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders.CorrelationContextHeader">
+            <summary>
+            Correlation-Context header.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders.TraceParentHeader">
+            <summary>
+            W3C traceparent header name.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders.TraceStateHeader">
+            <summary>
+            W3C tracestate header name.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.ExceptionTrackingMiddleware">
+            <summary>
+            Sends telemetry about exceptions thrown by the application to the Microsoft Application Insights service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.ExceptionTrackingMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.ApplicationInsights.TelemetryClient)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.ExceptionTrackingMiddleware" /> class.
+            </summary>
+            <param name="next">A function that can process an HTTP request.</param>
+            <param name="client">Send events, metrics and other telemetry to the Application Insights service.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.ExceptionTrackingMiddleware.Invoke(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Invoke the RequestDelegate with the HttpContext provided.
+            </summary>
+            <param name="httpContext">The HttpContext for the request.</param>
+            <returns>A task that represents the completion of request processing.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource">
+            <summary>
+            Event source for Application Insights ASP.NET Core SDK.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.Instance">
+            <summary>
+            The singleton instance of this event source.
+            Due to how EventSource initialization works this has to be a public field and not
+            a property otherwise the internal state of the event source will not be enabled.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.#ctor">
+            <summary>
+            Prevents a default instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource"/> class from being created.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogTelemetryInitializerBaseInitializeContextNull(System.String)">
+            <summary>
+            Logs an event for the TelemetryInitializerBase Initialize method when the HttpContext is null.
+            </summary>
+            <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogTelemetryInitializerBaseInitializeRequestNull(System.String)">
+            <summary>
+            Logs an event for the TelemetryInitializerBase Initialize method when the request is null.
+            </summary>
+            <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogClientIpHeaderTelemetryInitializerOnInitializeTelemetryIpNull(System.String)">
+            <summary>
+            Logs an event for the ClientIpHeaderTelemetryInitializer OnInitializeTelemetry method when the location IP is null.
+            </summary>
+            <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogWebSessionTelemetryInitializerOnInitializeTelemetrySessionIdNull(System.String)">
+            <summary>
+            Logs an event for the WebSessionTelemetryInitializer OnInitializeTelemetry method when the session Id is null.
+            </summary>
+            <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogWebUserTelemetryInitializerOnInitializeTelemetrySessionIdNull(System.String)">
+            <summary>
+            Logs an event for the WebUserTelemetryInitializer OnInitializeTelemetry method when the session Id is null.
+            </summary>
+            <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogHostingDiagnosticListenerOnHttpRequestInStartActivityNull(System.String)">
+            <summary>
+            Logs an event for the HostingDiagnosticListener OnHttpRequestInStart method when the current activity is null.
+            </summary>
+            <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.UnableToFindModuleToConfigure(System.String,System.String)">
+            <summary>
+            Logs an event when a TelemetryModule is not found to configure.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.NotActiveListenerNoTracking(System.String,System.String,System.String)">
+            <summary>
+            Logs an event when telemetry is not tracked as the Listener is not active.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogError(System.String,System.String)">
+            <summary>
+            Logs an event for when generic error occur within the SDK.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.RequestTrackingModuleInitializationFailed(System.String,System.String)">
+            <summary>
+            Logs an event when RequestTrackingModule failed to initialize.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.DiagnosticListenerWarning(System.String,System.String,System.String)">
+            <summary>
+            Logs an event when any error occurs within DiagnosticListener callback.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.TelemetryConfigurationSetupFailure(System.String,System.String)">
+            <summary>
+            Logs an event when TelemetryConfiguration configure has failed.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.TelemetryItemWasSampledOutAtHead(System.String,System.String)">
+            <summary>
+            Logs an event when a telemetry item is sampled out at head.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.HostingListenerInformational(Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion,System.String,System.String)">
+            <summary>
+            Logs an informational event from Hosting listeners.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.HostingListenerVerbose(System.String,System.String)">
+            <summary>
+            Logs a verbose event.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.RequestTelemetryCreated(System.String,System.String,System.String,System.String)">
+            <summary>
+            Logs an event for RequestTelemetry created.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.HostingListenerWarning(System.String,System.String,System.String)">
+            <summary>
+            Logs a verbose event.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogInformational(System.String,System.String)">
+            <summary>
+            Logs an informational event.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(System.String,System.String)">
+            <summary>
+            Logs an event when AzureAppServiceRoleNameFromHostNameHeaderInitializer faces errors.
+            </summary>
+            <param name="exception">Exception message.</param>
+            <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.TelemetryModuleInitialziationSetupFailure(System.String,System.String,System.String)">
+            <summary>
+            Logs an event when TelemetryModule initialization has failed.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.Keywords">
+            <summary>
+            Keywords for the AspNetEventSource.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource.Keywords.Diagnostics">
+            <summary>
+            Keyword for errors that trace at Verbose level.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Extensions.HttpRequestExtensions">
+            <summary>
+            Set of extension methods for Microsoft.AspNetCore.Http.HttpRequest.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensions.HttpRequestExtensions.GetUri(Microsoft.AspNetCore.Http.HttpRequest)">
+            <summary>
+            Gets http request Uri from request object.
+            </summary>
+            <param name="request">The <see cref="T:Microsoft.AspNetCore.Http.HttpRequest"/>.</param>
+            <returns>A New Uri object representing request Uri.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions">
+            <summary>
+            Request collection options define the custom behavior or non-default features of request collection.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions"/> class
+            and populates default values.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.InjectResponseHeaders">
+            <summary>
+            Gets or sets a value indicating whether the Request-Context header is to be injected into the response.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.TrackExceptions">
+            <summary>
+            Gets or sets a value indicating whether exceptions are to be tracked by the RequestCollectionModule.
+            Exceptions could be tracked by ApplicationInsightsLoggerProvider as well which is not affected by
+            this setting.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.EnableW3CDistributedTracing">
+            <summary>
+            Gets or sets a value indicating whether W3C distributed tracing standard is enabled.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions">
+            <summary>
+            Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of features obtained from Application Insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableQuickPulseMetricStream">
+            <summary>
+            Gets or sets a value indicating whether QuickPulseTelemetryModule and QuickPulseTelemetryProcessor are registered with the configuration.
+            Setting EnableQuickPulseMetricStream to <value>false</value>, will disable the default quick pulse metric stream. Defaults to <value>true</value>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnablePerformanceCounterCollectionModule">
+            <summary>
+            Gets or sets a value indicating whether PerformanceCollectorModule should be enabled.
+            Defaults to <value>true</value>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAppServicesHeartbeatTelemetryModule">
+            <summary>
+            Gets or sets a value indicating whether AppServicesHeartbeatTelemetryModule should be enabled.
+            Defaults to <value>true</value>.
+            IMPORTANT: This setting will be ignored if either <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule"/> or <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableHeartbeat"/> are set to false.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAzureInstanceMetadataTelemetryModule">
+            <summary>
+            Gets or sets a value indicating whether AzureInstanceMetadataTelemetryModule should be enabled.
+            Defaults to <value>true</value>.
+            IMPORTANT: This setting will be ignored if either <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule"/> or <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableHeartbeat"/> are set to false.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDependencyTrackingTelemetryModule">
+            <summary>
+            Gets or sets a value indicating whether DependencyTrackingTelemetryModule should be enabled.
+            Defaults to <value>true</value>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableEventCounterCollectionModule">
+            <summary>
+            Gets or sets a value indicating whether EventCounterCollectionModule should be enabled.
+            Defaults to <value>true</value>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAdaptiveSampling">
+            <summary>
+            Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
+            Setting EnableAdaptiveSampling to <value>false</value>, will disable the default adaptive sampling feature. Defaults to <value>true</value>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.InstrumentationKey">
+            <summary>
+            Gets or sets the default instrumentation key for the application.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.ConnectionString">
+            <summary>
+            Gets or sets the connection string for the application.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.ApplicationVersion">
+            <summary>
+            Gets or sets the application version reported with telemetries.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.DeveloperMode">
+            <summary>
+            Gets or sets a value indicating whether telemetry channel should be set to developer mode.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EndpointAddress">
+            <summary>
+            Gets or sets the endpoint address of the channel.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDebugLogger">
+            <summary>
+            Gets or sets a value indicating whether a logger would be registered automatically in debug mode.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableHeartbeat">
+            <summary>
+            Gets or sets a value indicating whether heartbeats are enabled.
+            IMPORTANT: This setting will be ignored if <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule"/> is set to false.
+            IMPORTANT: Disabling this will cause the following settings to be ignored:
+            <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAzureInstanceMetadataTelemetryModule"/>.
+            <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAppServicesHeartbeatTelemetryModule"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.AddAutoCollectedMetricExtractor">
+            <summary>
+            Gets or sets a value indicating whether AutoCollectedMetricExtractors are added or not.
+            Defaults to <value>true</value>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.RequestCollectionOptions">
+            <summary>
+            Gets <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.RequestCollectionOptions"/> that allow to manage <see cref="T:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableRequestTrackingTelemetryModule">
+            <summary>
+            Gets or sets a value indicating whether RequestTrackingTelemetryModule should be enabled.
+            Defaults to <value>true</value>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAuthenticationTrackingJavaScript">
+            <summary>
+            Gets or sets a value indicating whether a JavaScript snippet to track the current authenticated user should
+            be printed along with the main ApplicationInsights tracking script.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule">
+            <summary>
+            Gets or sets a value indicating whether the <see cref="T:Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule"/> should be enabled.
+            IMPORTANT: Disabling this will cause the following settings to be ignored:
+            <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableHeartbeat"/>.
+            <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAzureInstanceMetadataTelemetryModule"/>.
+            <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAppServicesHeartbeatTelemetryModule"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.DependencyCollectionOptions">
+            <summary>
+            Gets <see cref="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.DependencyCollectionOptions"/> that allow to manage <see cref="T:Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableActiveTelemetryConfigurationSetup">
+            <summary>
+            Gets or sets a value indicating whether TelemetryConfiguration.Active should be initialized.
+            Former versions of this library had a dependency on this static instance. 
+            This dependency has been removed and we no longer initialize this by default.
+            If users depended on this behavior you should enable this.
+            However, we recommend migrating away from using TelemetryConfiguration.Active in your projects.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.CopyPropertiesTo(Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions)">
+            <summary>
+            Copy the properties from this <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions"/> to a target instance.
+            </summary>
+            <param name="target">Target instance to copy properties to.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions">
+            <summary>
+            Default collection options define the custom behavior or non-default features of dependency collection.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions"/> class and fills default values.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection">
+            <summary>
+            Gets or sets a value indicating whether to enable legacy (x-ms*) correlation headers injection.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.IJavaScriptSnippet">
+            <summary>
+            Represents factory used to generate Application Insights JavaScript snippet with dependency injection support.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.IJavaScriptSnippet.FullScript">
+            <summary>
+            Gets a JavaScript code snippet including the 'script' tag.
+            </summary>
+            <returns>JavaScript code snippet.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.ApplicationInsightsStartupFilter">
+            <summary>
+            <see cref="T:Microsoft.AspNetCore.Hosting.IStartupFilter"/> implementation that initialized ApplicationInsights services on application startup.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.ApplicationInsightsStartupFilter.#ctor(Microsoft.Extensions.Logging.ILogger{Microsoft.ApplicationInsights.AspNetCore.ApplicationInsightsStartupFilter})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.ApplicationInsightsStartupFilter"/> class.
+            </summary>
+            <param name="logger">Instance of ILogger.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.ApplicationInsightsStartupFilter.Configure(System.Action{Microsoft.AspNetCore.Builder.IApplicationBuilder})">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion">
+            <summary>
+            Represents the runtime version of AspNetCore.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.One">
+            <summary>
+            .NET Core Version 1.0
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.Two">
+            <summary>
+            .NET Core Version 2.0
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.Three">
+            <summary>
+            .NET Core Version 3.0 or higher
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Implementation.RoleNameContainer">
+            <summary>
+            Static container that holds the RoleName.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Implementation.RoleNameContainer.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Implementation.RoleNameContainer"/> class.
+            Will set the RoleName based on an environment variable.
+            </summary>
+            <param name="hostNameSuffix">Host name suffix will be used to parse the prefix from the host name. The value of the prefix is the RoleName.</param>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Implementation.RoleNameContainer.Instance">
+            <summary>
+            Gets or sets static instance for Initializer and DiagnosticListener to share access to RoleName variable.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Implementation.RoleNameContainer.RoleName">
+            <summary>
+            Gets or sets role name of the current application.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Implementation.RoleNameContainer.IsAzureWebApp">
+            <summary>
+            Gets a value indicating whether indicates if the current app is an Azure Web App based on the presence of a specific environment variable. Set in constructor.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Implementation.RoleNameContainer.HostNameSuffix">
+            <summary>
+            Gets suffix of website name. This must be changed when running in non public Azure region.
+            Default value (Public Cloud):  ".azurewebsites.net"
+            For US Gov Cloud: ".azurewebsites.us"
+            For Azure Germany: ".azurewebsites.de".
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Implementation.RoleNameContainer.Set(Microsoft.AspNetCore.Http.IHeaderDictionary)">
+            <summary>
+            Attempt to set the role name from a given collection of request headers.
+            </summary>
+            <param name="requestHeaders">Request headers to check for role name.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet">
+            <summary>
+            This class helps to inject Application Insights JavaScript snippet into application code.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.Snippet">
+            <summary>JavaScript snippet.</summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.AuthSnippet">
+            <summary>JavaScript authenticated user tracking snippet.</summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.httpContextAccessor">
+            <summary> Http context accessor.</summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.telemetryConfiguration">
+            <summary>Configuration instance.</summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.enableAuthSnippet">
+            <summary> Weather to print authenticated user tracking snippet.</summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.#ctor(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration,Microsoft.Extensions.Options.IOptions{Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,System.Text.Encodings.Web.JavaScriptEncoder)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet"/> class.
+            </summary>
+            <param name="telemetryConfiguration">The configuration instance to use.</param>
+            <param name="serviceOptions">Service options instance to use.</param>
+            <param name="httpContextAccessor">Http context accessor to use.</param>
+            <param name="encoder">Encoder used to encode user identity.</param>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.FullScript">
+            <summary>
+            Gets the full JavaScript Snippet in HTML script tags with instrumentation key initialized from TelemetryConfiguration.
+            </summary>
+            <remarks>This method will evaluate if Telemetry has been disabled in the config and if the instrumentation key was provided by either setting InstrumentationKey or ConnectionString.</remarks>
+            <returns>JavaScript code snippet with instrumentation key or returns string.Empty if instrumentation key was not set for the application.</returns>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.ScriptBody">
+            <summary>
+            Gets the JavaScript Snippet body (without HTML script tags) with instrumentation key initialized from TelemetryConfiguration.
+            </summary>
+            <returns>JavaScript code snippet with instrumentation key or returns string.Empty if instrumentation key was not set for the application.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.IsAvailable">
+            <summary>
+            Determine if we have enough information to build a full script.
+            </summary>
+            <returns>Returns true if we can build the JavaScript snippet.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLogger">
+            <summary>
+            <see cref="T:Microsoft.Extensions.Logging.ILogger"/> implementation that forwards log messages as Application Insight trace events.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLogger.VersionPrefix">
+            <summary>
+            SDK Version Prefix.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLogger.#ctor(System.String,Microsoft.ApplicationInsights.TelemetryClient,System.Func{System.String,Microsoft.Extensions.Logging.LogLevel,System.Boolean},Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLogger"/> class.
+            </summary>
+            <param name="filter"></param>
+            <param name="name"></param>
+            <param name="options"></param>
+            <param name="telemetryClient"></param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLogger.BeginScope``1(``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLogger.IsEnabled(Microsoft.Extensions.Logging.LogLevel)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLogger.Log``1(Microsoft.Extensions.Logging.LogLevel,Microsoft.Extensions.Logging.EventId,``0,System.Exception,System.Func{``0,System.Exception,System.String})">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerEvents">
+            <summary>
+            Class to provide ApplicationInsights logger events.
+            </summary>
+        </member>
+        <member name="E:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerEvents.LoggerAdded">
+            <summary>
+            Event that is fired when new ApplicationInsights logger is added.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerEvents.OnLoggerAdded">
+            <summary>
+            Invokes LoggerAdded event.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions">
+            <summary>
+            <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions"/> defines the custom behavior of the tracing information sent to Application Insights.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions" /> class.
+            Application Insights logger options can configure how <see cref="T:Microsoft.Extensions.Logging.ILogger"/> behaves when sending telemetry.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry">
+            <summary>
+            Gets or sets a value indicating whether to track exceptions as <see cref="T:Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions.IncludeEventId">
+            <summary>
+            Gets or sets a value indicating whether EventId and EventName properties should be included in telemetry.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerProvider">
+            <summary>
+            <see cref="T:Microsoft.Extensions.Logging.ILoggerProvider"/> implementation that creates returns instances of <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLogger"/>.
+            </summary>
+            <remarks>
+            THIS CLASS IS OBSOLETE.
+            For NETSTANDARD2.0 and NET461 We take dependency on Microsoft.Extensions.Logging.ApplicationInsights which has ApplicationInsightsProvider having the same ProviderAlias and don't want to clash with this ProviderAlias.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerProvider.#ctor(Microsoft.ApplicationInsights.TelemetryClient,System.Func{System.String,Microsoft.Extensions.Logging.LogLevel,System.Boolean},Microsoft.Extensions.Options.IOptions{Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerProvider"/> class.
+            </summary>
+            <param name="telemetryClient"></param>
+            <param name="options"></param>
+            <param name="filter"></param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerProvider.CreateLogger(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerProvider.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule">
+            <summary>
+            Telemetry module tracking requests using Diagnostic Listeners.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.#ctor(Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule"/> class.
+            </summary>
+            <param name="applicationIdProvider">Provider to resolve Application Id.</param>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.CollectionOptions">
+            <summary>
+            Gets or sets request collection options.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.Initialize(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration)">
+            <summary>
+            Initializes the telemetry module.
+            </summary>
+            <param name="configuration">Telemetry configuration to use for initialization.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.System#IObserver{System#Diagnostics#DiagnosticListener}#OnNext(System.Diagnostics.DiagnosticListener)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.System#IObserver{System#Diagnostics#DiagnosticListener}#OnError(System.Exception)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.System#IObserver{System#Diagnostics#DiagnosticListener}#OnCompleted">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.RequestTrackingTelemetryModule.Dispose(System.Boolean)">
+            <summary>
+            Dispose the class.
+            </summary>
+            <param name="disposing">Indicates if this class is currently being disposed.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.Resources">
+            <summary>
+               A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Resources.ResourceManager">
+            <summary>
+               Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Resources.Culture">
+            <summary>
+               Overrides the current thread's CurrentUICulture property for all
+               resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Resources.JavaScriptAuthSnippet">
+            <summary>
+               Looks up a localized string similar to appInsights.setAuthenticatedUserContext(&quot;{0}&quot;);.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.Resources.JavaScriptSnippet">
+            <summary>
+               Looks up a localized string similar to      &lt;script type=&quot;text/javascript&quot;&gt;
+                   var appInsights=window.appInsights||function(config){{
+                       function i(config){{t[config]=function(){{var i=arguments;t.queue.push(function(){{t[config].apply(t,i)}})}}}}var t={{config:config}},u=document,e=window,o=&quot;script&quot;,s=&quot;AuthenticatedUserContext&quot;,h=&quot;start&quot;,c=&quot;stop&quot;,l=&quot;Track&quot;,a=l+&quot;Event&quot;,v=l+&quot;Page&quot;,y=u.createElement(o),r,f;y.src=config.url||&quot;https://az416426.vo.msecnd.net/scripts/a/ai.0.js&quot;;u.getElementsByTagName(o)[0].parentNode.appendChild(y);try{ [rest of string was truncated]&quot;;.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.SdkVersionUtils">
+            <summary>
+            Utility class for the version information of the current assembly.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ApplicationInsights.AspNetCore.SdkVersionUtils.VersionPrefix">
+            <summary>
+            SDK Version Prefix.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.SdkVersionUtils.GetVersion">
+            <summary>
+            Get the Assembly Version with SDK prefix.
+            </summary>
+            <returns>Assembly version combined with this assembly's version prefix.</returns>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.SdkVersionUtils.GetVersion(System.String)">
+            <summary>
+            Get the Assembly Version with given SDK prefix.
+            </summary>
+            <param name="versionPrefix">Prefix string to be included with the version.</param>
+            <returns>Returns a string representing the current assembly version.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AspNetCoreEnvironmentTelemetryInitializer">
+            <summary>
+            <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryInitializer"/> implementation that stamps ASP.NET Core environment name
+            on telemetries.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AspNetCoreEnvironmentTelemetryInitializer.#ctor(Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AspNetCoreEnvironmentTelemetryInitializer"/> class.
+            </summary>
+            <param name="environment">HostingEnvironment to provide EnvironmentName to be added to telemetry properties.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AspNetCoreEnvironmentTelemetryInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AzureAppServiceRoleNameFromHostNameHeaderInitializer">
+            <summary>
+            A telemetry initializer that will gather Azure Web App Role Environment context information to
+            populate TelemetryContext.Cloud.RoleName
+            This uses the http header "WAS-DEFAULT-HOSTNAME" to update role name, if available.
+            Otherwise role name is populated from "WEBSITE_HOSTNAME" environment variable.
+            </summary>
+            <remarks>
+            The RoleName is expected to contain the host name + slot name, but will be same across all instances of
+            a single App Service.
+            Populating RoleName from HOSTNAME environment variable will cause RoleName to be incorrect when a slot swap occurs in AppService.
+            The most accurate way to determine the RoleName is to rely on the header WAS-DEFAULT-HOSTNAME, as its
+            populated from App service front end on every request. Slot swaps are instantly reflected in this header.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AzureAppServiceRoleNameFromHostNameHeaderInitializer.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AzureAppServiceRoleNameFromHostNameHeaderInitializer" /> class.
+            </summary>
+            <param name="webAppSuffix">WebApp name suffix.</param>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AzureAppServiceRoleNameFromHostNameHeaderInitializer.WebAppSuffix">
+            <summary>
+            Gets or sets suffix of website name. This must be changed when running in non public Azure region.
+            Default value (Public Cloud):  ".azurewebsites.net"
+            For US Gov Cloud: ".azurewebsites.us"
+            For Azure Germany: ".azurewebsites.de".
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.AzureAppServiceRoleNameFromHostNameHeaderInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <summary>
+            Populates RoleName from the request telemetry associated with the http context.
+            If RoleName is empty on the request telemetry, it'll be updated as well so that other telemetry
+            belonging to the same requests gets it from request telemetry, without having to parse headers again.
+            </summary>
+            <remarks>
+            RoleName is attempted from every incoming request as opposed to doing this periodically. This is
+            done to ensure every request (and associated telemetry) gets the correct RoleName during slot swap.
+            </remarks>
+            <param name="telemetry">The telemetry item for which RoleName is to be set.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ClientIpHeaderTelemetryInitializer">
+            <summary>
+            This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ClientIpHeaderTelemetryInitializer.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ClientIpHeaderTelemetryInitializer" /> class.
+            </summary>
+            <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ClientIpHeaderTelemetryInitializer.HeaderNames">
+            <summary>
+            Gets comma separated list of request header names that is used to check client id.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ClientIpHeaderTelemetryInitializer.HeaderValueSeparators">
+            <summary>
+            Gets or sets a header values separator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ClientIpHeaderTelemetryInitializer.UseFirstIp">
+            <summary>
+            Gets or sets a value indicating whether the first or the last IP should be used from the lists of IPs in the header.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ClientIpHeaderTelemetryInitializer.OnInitializeTelemetry(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ApplicationInsights.DataContracts.RequestTelemetry,Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.OperationNameTelemetryInitializer">
+            <summary>
+            This telemetry initializer sets the Operation Name on telemetry items.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.OperationNameTelemetryInitializer.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.OperationNameTelemetryInitializer" /> class.
+            </summary>
+            <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.OperationNameTelemetryInitializer.OnInitializeTelemetry(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ApplicationInsights.DataContracts.RequestTelemetry,Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.SyntheticTelemetryInitializer">
+            <summary>
+            This will allow to mark synthetic traffic from availability tests.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.SyntheticTelemetryInitializer.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.SyntheticTelemetryInitializer" /> class.
+            </summary>
+            <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.SyntheticTelemetryInitializer.OnInitializeTelemetry(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ApplicationInsights.DataContracts.RequestTelemetry,Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.TelemetryInitializerBase">
+            <summary>
+            Base class for Telemetry Initializers. Provides access to HttpContext and RequestTelemetry.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.TelemetryInitializerBase.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.TelemetryInitializerBase" /> class.
+            </summary>
+            <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.TelemetryInitializerBase.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <summary>
+            TelemetryInitializerBase will retrieve the HttpContext and RequestTelemetry for the current ITelemetry and then invoke <see cref="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.TelemetryInitializerBase.OnInitializeTelemetry(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ApplicationInsights.DataContracts.RequestTelemetry,Microsoft.ApplicationInsights.Channel.ITelemetry)"/>.
+            </summary>
+            <param name="telemetry">Telemetry item to be enriched.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.TelemetryInitializerBase.OnInitializeTelemetry(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ApplicationInsights.DataContracts.RequestTelemetry,Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <summary>
+            Abstract method provides HttpContext, RequestTelemetry for the given ITelemetry.
+            </summary>
+            <param name="platformContext">Current HttpContext.</param>
+            <param name="requestTelemetry">Request telemetry from the context.</param>
+            <param name="telemetry">Telemetry item to be enriched.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.WebSessionTelemetryInitializer">
+            <summary>
+            This telemetry initializer sets the Context.Session properties on an ITelemetry item.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.WebSessionTelemetryInitializer.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.WebSessionTelemetryInitializer" /> class.
+            </summary>
+            <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.WebSessionTelemetryInitializer.OnInitializeTelemetry(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ApplicationInsights.DataContracts.RequestTelemetry,Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.WebUserTelemetryInitializer">
+            <summary>
+            This initializer sets the User Id on telemetry.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.WebUserTelemetryInitializer.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.WebUserTelemetryInitializer" /> class.
+            </summary>
+            <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.WebUserTelemetryInitializer.OnInitializeTelemetry(Microsoft.AspNetCore.Http.HttpContext,Microsoft.ApplicationInsights.DataContracts.RequestTelemetry,Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ComponentVersionTelemetryInitializer">
+            <summary>
+            A telemetry initializer that populates telemetry.Context.Component.Version to the value read from configuration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ComponentVersionTelemetryInitializer.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ComponentVersionTelemetryInitializer" /> class.
+            </summary>
+            <param name="options">Provides the Application Version to be added to the telemetry.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.ComponentVersionTelemetryInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer">
+            <summary>
+            A telemetry initializer that populates cloud context role instance.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry)">
+            <summary>
+            Initializes role instance name and node name with the host name.
+            </summary>
+            <param name="telemetry">Telemetry item.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.ITelemetryModuleConfigurator">
+            <summary>
+            Represents method used to configure <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryModule"/> with dependency injection support.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.ITelemetryModuleConfigurator.TelemetryModuleType">
+            <summary>
+            Gets the type of <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryModule"/> to be configured.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.ITelemetryModuleConfigurator.Configure(Microsoft.ApplicationInsights.Extensibility.ITelemetryModule)">
+            <summary>
+            Configures the given <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryModule"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.ITelemetryModuleConfigurator.Configure(Microsoft.ApplicationInsights.Extensibility.ITelemetryModule,Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions)">
+            <summary>
+            Configures the given <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryModule"/>.
+            </summary>
+            <param name="telemetryModule">Module to be configured.</param>
+            <param name="options">Configuration options.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.ITelemetryProcessorFactory">
+            <summary>
+            Represents factory used to create <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor"/> with dependency injection support.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.ITelemetryProcessorFactory.Create(Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor)">
+            <summary>
+            Creates an instance of the telemetry processor, passing the
+            next <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor"/> in the call chain to
+            its constructor.
+            </summary>
+            <param name="nextProcessor">The next processor in the chain.</param>
+            <returns>Returns a new TelemetryProcessor with it's Next property set to the provided processor.</returns>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.NoOpTelemetryModule">
+            <summary>
+            No-op telemetry module that is added instead of actual one, when the actual module is disabled.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.NoOpTelemetryModule.Initialize(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration)">
+            <summary>
+            This is a no-op and will do nothing.
+            </summary>
+            <param name="configuration">This does nothing.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryModuleConfigurator">
+            <summary>
+            Represents method used to configure <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryModule"/> with dependency injection support.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryModuleConfigurator.#ctor(System.Action{Microsoft.ApplicationInsights.Extensibility.ITelemetryModule,Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions},System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryModuleConfigurator"/> class.
+            </summary>
+            <param name="configure">The action used to configure telemetry module.</param>
+            <param name="telemetryModuleType">The type of the telemetry module being configured.</param>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.AspNetCore.TelemetryModuleConfigurator.TelemetryModuleType">
+            <summary>
+            Gets the type of <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryModule"/> to be configured.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryModuleConfigurator.Configure(Microsoft.ApplicationInsights.Extensibility.ITelemetryModule,Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions)">
+            <summary>
+            Configures telemetry module.
+            </summary>
+            <param name="telemetryModule">Module to be configured.</param>
+            <param name="options">Configuration options.</param>
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryProcessorFactory">
+            <summary>
+            A generic factory for telemetry processors of a given type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryProcessorFactory.#ctor(System.IServiceProvider,System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.AspNetCore.TelemetryProcessorFactory"/> class.
+            </summary>
+            <param name="serviceProvider">The service provider.</param>
+            <param name="telemetryProcessorType">The type of telemetry processor to create.</param>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.AspNetCore.TelemetryProcessorFactory.Create(Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.ApplicationInsights.Shared.Internals.ApplicationNameProvider">
+            <summary>
+            This class provides the assembly name for the EventSource implementations.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ApplicationInsights.Shared.Internals.ApplicationNameProvider.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ApplicationInsights.Shared.Internals.ApplicationNameProvider"/> class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ApplicationInsights.Shared.Internals.ApplicationNameProvider.Name">
+            <summary>
+            Gets name of the current assembly.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions">
+            <summary>
+            Extension methods for <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> that allow adding Application Insights services to application.
+            </summary>
+            <summary>
+            Extension methods for <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> that allow adding Application Insights services to application.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsTelemetry(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)">
+            <summary>
+            Adds Application Insights services into service collection.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <param name="instrumentationKey">Instrumentation key to use for telemetry.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsTelemetry(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Adds Application Insights services into service collection.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <param name="configuration">Configuration to use for sending telemetry.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsTelemetry(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions})">
+            <summary>
+            Adds Application Insights services into service collection.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <param name="options">The action used to configure the options.</param>
+            <returns>
+            The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsTelemetry(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions)">
+            <summary>
+            Adds Application Insights services into service collection.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <param name="options">The options instance used to configure with.</param>
+            <returns>
+            The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsTelemetry(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds Application Insights services into service collection.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <returns>
+            The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsTelemetryProcessor``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds an Application Insights Telemetry Processor into a service collection via a <see cref="T:Microsoft.ApplicationInsights.AspNetCore.ITelemetryProcessorFactory"/>.
+            </summary>
+            <typeparam name="T">Type of the telemetry processor to add.</typeparam>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <returns>
+            The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsTelemetryProcessor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Type)">
+            <summary>
+            Adds an Application Insights Telemetry Processor into a service collection via a <see cref="T:Microsoft.ApplicationInsights.AspNetCore.ITelemetryProcessorFactory"/>.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <param name="telemetryProcessorType">Type of the telemetry processor to add.</param>
+            <returns>
+            The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="telemetryProcessorType"/> argument is null.</exception>
+            <exception cref="T:System.ArgumentException">The <paramref name="telemetryProcessorType"/> type does not implement <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor"/>.</exception>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.ConfigureTelemetryModule``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{``0})">
+            <summary>
+            Extension method to provide configuration logic for application insights telemetry module.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <param name="configModule">Action used to configure the module.</param>
+            <returns>
+            The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.ConfigureTelemetryModule``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{``0,Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions})">
+            <summary>
+            Extension method to provide configuration logic for application insights telemetry module.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance.</param>
+            <param name="configModule">Action used to configure the module.</param>
+            <returns>
+            The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsSettings(Microsoft.Extensions.Configuration.IConfigurationBuilder,System.Nullable{System.Boolean},System.String,System.String)">
+            <summary>
+            Adds Application Insight specific configuration properties to <see cref="T:Microsoft.Extensions.Configuration.IConfigurationBuilder"/>.
+            </summary>
+            <param name="configurationSourceRoot">The <see cref="T:Microsoft.Extensions.Configuration.IConfigurationBuilder"/> instance.</param>
+            <param name="developerMode">Enables or disables developer mode.</param>
+            <param name="endpointAddress">Sets telemetry endpoint address.</param>
+            <param name="instrumentationKey">Sets instrumentation key.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.Configuration.IConfigurationBuilder"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddApplicationInsightsSettings(Microsoft.Extensions.Configuration.IConfigurationBuilder,System.String,System.Nullable{System.Boolean},System.String,System.String)">
+            <summary>
+            Adds Application Insight specific configuration properties to <see cref="T:Microsoft.Extensions.Configuration.IConfigurationBuilder"/>.
+            </summary>
+            <param name="configurationSourceRoot">The <see cref="T:Microsoft.Extensions.Configuration.IConfigurationBuilder"/> instance.</param>
+            <param name="connectionString">Sets connection string.</param>
+            <param name="developerMode">Enables or disables developer mode.</param>
+            <param name="endpointAddress">Sets telemetry endpoint address.</param>
+            <param name="instrumentationKey">Sets instrumentation key.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.Configuration.IConfigurationBuilder"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddTelemetryConfiguration(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions)">
+            <summary>
+            Read configuration from appSettings.json, appsettings.{env.EnvironmentName}.json,
+            IConfiguation used in an application and EnvironmentVariables.
+            Bind configuration to ApplicationInsightsServiceOptions.
+            Values can also be read from environment variables to support azure web sites configuration.
+            </summary>
+            <param name="config">Configuration to read variables from.</param>
+            <param name="serviceOptions">Telemetry configuration to populate.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ApplicationInsightsExtensions.AddSingletonIfNotExists``2(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            The AddSingleton method will not check if a class has already been added as an ImplementationType.
+            This extension method is to encapsulate those checks.
+            </summary>
+            <remarks>
+            Must check all three properties to avoid duplicates or null ref exceptions.
+            </remarks>
+            <typeparam name="TService">The type of the service to add.</typeparam>
+            <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
+            <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptions">
+            <summary>
+            The <see cref="T:Microsoft.Extensions.Options.IOptions`1"/> implementation that create new <see cref="T:Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration"/> every time when called".
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptions.#ctor(System.Collections.Generic.IEnumerable{Microsoft.Extensions.Options.IConfigureOptions{Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration}},Microsoft.Extensions.Options.IOptions{Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptions"/> class.
+            </summary>
+            <param name="configureOptions">Options to be configured.</param>
+            <param name="applicationInsightsServiceOptions">User defined serviceOptions.</param>
+        </member>
+        <member name="P:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptions.Value">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptions.IsActiveConfigured(System.String)">
+            <summary>
+            Determines if TelemetryConfiguration.Active needs to be configured.
+            </summary>
+            <param name="instrumentationKey">Instrumentation key.</param>
+            <returns>True is TelemertryConfiguration.Active was previously configured.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptionsSetup">
+            <summary>
+            Initializes TelemetryConfiguration based on values in <see cref="T:Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions"/>
+            and registered <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryInitializer"/>s and <see cref="T:Microsoft.ApplicationInsights.Extensibility.ITelemetryModule"/>s.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptionsSetup.#ctor(System.IServiceProvider,Microsoft.Extensions.Options.IOptions{Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions},System.Collections.Generic.IEnumerable{Microsoft.ApplicationInsights.Extensibility.ITelemetryInitializer},System.Collections.Generic.IEnumerable{Microsoft.ApplicationInsights.Extensibility.ITelemetryModule},System.Collections.Generic.IEnumerable{Microsoft.ApplicationInsights.AspNetCore.ITelemetryProcessorFactory},System.Collections.Generic.IEnumerable{Microsoft.ApplicationInsights.AspNetCore.ITelemetryModuleConfigurator})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptionsSetup"/> class.
+            </summary>
+            <param name="serviceProvider">Instance of IServiceProvider.</param>
+            <param name="applicationInsightsServiceOptions">Instance of IOptions&lt;ApplicationInsightsServiceOptions>.</param>
+            <param name="initializers">Instance of IEnumerable&lt;ITelemetryInitializer>.</param>
+            <param name="modules">Instance of IEnumerable&lt;ITelemetryModule>.</param>
+            <param name="telemetryProcessorFactories">Instance of IEnumerable&lt;ITelemetryProcessorFactory>.</param>
+            <param name="telemetryModuleConfigurators">Instance of IEnumerable&lt;ITelemetryModuleConfigurator>.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.TelemetryConfigurationOptionsSetup.Configure(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Extensions.Logging.ProviderAliasAttribute">
+            <summary>
+            Controls logger provider alias used for configuration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.Logging.ProviderAliasAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Extensions.Logging.ProviderAliasAttribute" /> class.
+            </summary>
+            <param name="alias">Sets an alias that can be used instead of full type name.</param>
+        </member>
+        <member name="P:Microsoft.Extensions.Logging.ProviderAliasAttribute.Alias">
+            <summary>
+            Gets an alias that can be used instead of full type name during configuration.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.Logging.ApplicationInsightsLoggerFactoryExtensions">
+            <summary>
+            Extension methods for <see cref="T:Microsoft.Extensions.Logging.ILoggerFactory"/> that allow adding Application Insights logger.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.Logging.ApplicationInsightsLoggerFactoryExtensions.AddApplicationInsights(Microsoft.Extensions.Logging.ILoggerFactory,System.IServiceProvider)">
+            <summary>
+            Adds an ApplicationInsights logger that is enabled for <see cref="F:Microsoft.Extensions.Logging.LogLevel.Warning"/> or higher.
+            </summary>
+            <param name="factory">Used to configure the logging system and create instances of ILogger from the registered ILoggerProviders.</param>
+            <param name="serviceProvider">The instance of <see cref="T:System.IServiceProvider"/> to use for service resolution.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.Logging.ApplicationInsightsLoggerFactoryExtensions.AddApplicationInsights(Microsoft.Extensions.Logging.ILoggerFactory,System.IServiceProvider,Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Adds an ApplicationInsights logger that is enabled for <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>s of minLevel or higher.
+            </summary>
+            <param name="factory">Used to configure the logging system and create instances of ILogger from the registered ILoggerProviders.</param>
+            <param name="serviceProvider">The instance of <see cref="T:System.IServiceProvider"/> to use for service resolution.</param>
+            <param name="minLevel">The minimum <see cref="T:Microsoft.Extensions.Logging.LogLevel"/> to be logged.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.Logging.ApplicationInsightsLoggerFactoryExtensions.AddApplicationInsights(Microsoft.Extensions.Logging.ILoggerFactory,System.IServiceProvider,System.Func{System.String,Microsoft.Extensions.Logging.LogLevel,System.Boolean})">
+            <summary>
+            Adds an ApplicationInsights logger that is enabled as defined by the filter function.
+            </summary>
+            <param name="factory">Used to configure the logging system and create instances of ILogger from the registered ILoggerProviders.</param>
+            <param name="serviceProvider">The instance of <see cref="T:System.IServiceProvider"/> to use for service resolution.</param>
+            <param name="filter"></param>
+        </member>
+        <member name="M:Microsoft.Extensions.Logging.ApplicationInsightsLoggerFactoryExtensions.AddApplicationInsights(Microsoft.Extensions.Logging.ILoggerFactory,System.IServiceProvider,System.Func{System.String,Microsoft.Extensions.Logging.LogLevel,System.Boolean},System.Action)">
+            <summary>
+            Adds an ApplicationInsights logger that is enabled as defined by the filter function.
+            </summary>
+            <param name="factory">Used to configure the logging system and create instances of ILogger from the registered ILoggerProviders.</param>
+            <param name="serviceProvider">The instance of <see cref="T:System.IServiceProvider"/> to use for service resolution.</param>
+            <param name="filter">Filter action.</param>
+            <param name="loggerAddedCallback">The callback that gets executed when another ApplicationInsights logger is added.</param>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Hosting.ApplicationInsightsWebHostBuilderExtensions">
+            <summary>
+            Extension methods for <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder"/> that allow adding Application Insights services to application.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Hosting.ApplicationInsightsWebHostBuilderExtensions.UseApplicationInsights(Microsoft.AspNetCore.Hosting.IWebHostBuilder)">
+            <summary>
+            Configures <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder"/> to use Application Insights services.
+            </summary>
+            <param name="webHostBuilder">The <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder"/> instance.</param>
+            <returns>The <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder"/>.</returns>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Hosting.ApplicationInsightsWebHostBuilderExtensions.UseApplicationInsights(Microsoft.AspNetCore.Hosting.IWebHostBuilder,System.String)">
+            <summary>
+            Configures <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder"/> to use Application Insights services.
+            </summary>
+            <param name="webHostBuilder">The <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder"/> instance.</param>
+            <param name="instrumentationKey">Instrumentation key to use for telemetry.</param>
+            <returns>The <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder"/>.</returns>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Hosting.DefaultApplicationInsightsServiceConfigureOptions">
+            <summary>
+            <see cref="T:Microsoft.Extensions.Options.IConfigureOptions`1"/> implementation that reads options from 'appsettings.json',
+            environment variables and sets developer mode based on debugger state.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Hosting.DefaultApplicationInsightsServiceConfigureOptions.#ctor(Microsoft.AspNetCore.Hosting.IHostingEnvironment,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.AspNetCore.Hosting.DefaultApplicationInsightsServiceConfigureOptions"/> class.
+            </summary>
+            <param name="hostingEnvironment"><see cref="T:Microsoft.AspNetCore.Hosting.IHostingEnvironment"/> to use for retreiving ContentRootPath.</param>
+            <param name="configuration"><see cref="T:Microsoft.Extensions.Configuration.IConfiguration"/>  from an application.</param>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Hosting.DefaultApplicationInsightsServiceConfigureOptions.Configure(Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

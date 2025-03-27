@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QRScannerService_Core", "QRScannerService_Core\QRScannerService_Core.csproj", "{49FC5EB6-D752-4E2A-A174-E3825990047A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QRScannerService_Tests", "QRScannerService_Tests\QRScannerService_Tests.csproj", "{3FE98C08-E608-4622-93EF-EE35FDF7A736}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QRScannerService_GUI", "QRScannerService_GUI\QRScannerService_GUI.csproj", "{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QRScannerService_WindowsService", "QRScannerService_WindowsService\QRScannerService_WindowsService.csproj", "{2249D4C2-AF4C-407A-BA55-416E5219D139}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49FC5EB6-D752-4E2A-A174-E3825990047A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49FC5EB6-D752-4E2A-A174-E3825990047A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49FC5EB6-D752-4E2A-A174-E3825990047A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49FC5EB6-D752-4E2A-A174-E3825990047A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FE98C08-E608-4622-93EF-EE35FDF7A736}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FE98C08-E608-4622-93EF-EE35FDF7A736}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FE98C08-E608-4622-93EF-EE35FDF7A736}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FE98C08-E608-4622-93EF-EE35FDF7A736}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2249D4C2-AF4C-407A-BA55-416E5219D139}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2249D4C2-AF4C-407A-BA55-416E5219D139}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2249D4C2-AF4C-407A-BA55-416E5219D139}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2249D4C2-AF4C-407A-BA55-416E5219D139}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
