@@ -23,7 +23,7 @@ The application supports multiple workflows and can be minimized to the system t
 ## Installation
 1. Clone the repository:
 
-git clone https://github.com/tusharbhut011/QR_Scanner.git
+git clone https://github.com/tusharbhut011/QRScanner_Master.git
 
 2. Open the solution in Visual Studio 2022.
 3. Build the solution to restore the NuGet packages and compile the project.
