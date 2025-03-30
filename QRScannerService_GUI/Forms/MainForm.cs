@@ -39,6 +39,7 @@ namespace QRScannerService_GUI.Forms
 
             PopulateComPorts();
             btnStopService.Enabled = false;
+            cmbPortName.Enabled = true; // Ensure the COM port field is enabled
             _serialPortService.DataReceived += SerialPortService_DataReceived;
             btnAddWorkflow.Click += btnAddWorkflow_Click;
             btnBrowseExcel.Click += btnBrowseExcel_Click;
@@ -60,168 +61,14 @@ namespace QRScannerService_GUI.Forms
             LanguageManager.UpdateUIText(this);
         }
 
-        // Public method to update tray menu text
-        public void UpdateTrayMenuText(bool isGerman)
+        private void btnRefreshComPorts_Click(object sender, EventArgs e)
         {
-            if (trayMenu != null)
-            {
-                trayMenu.Items[0].Text = isGerman ? "Anzeigen" : "Show";
-                trayMenu.Items[1].Text = isGerman ? "Dienst starten" : "Start Service";
-                trayMenu.Items[2].Text = isGerman ? "Dienst stoppen" : "Stop Service";
-                trayMenu.Items[4].Text = isGerman ? "Beenden" : "Exit";
-            }
-        }
-
-        private void InitializeLanguageDropdown()
-        {
-            // Set the selected language in the dropdown
-            cmbLanguage.SelectedIndex = (int)LanguageManager.GetCurrentLanguage();
-
-            // Add event handler for language change
-            cmbLanguage.SelectedIndexChanged += CmbLanguage_SelectedIndexChanged;
-        }
-
-        private void CmbLanguage_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // Get the selected language
-            LanguageManager.Language selectedLanguage = (LanguageManager.Language)cmbLanguage.SelectedIndex;
-
-            // If the language has changed
-            if (selectedLanguage != LanguageManager.GetCurrentLanguage())
-            {
-                // Set the new language
-                LanguageManager.SetLanguage(selectedLanguage);
-
-                // Update the UI text
-                LanguageManager.UpdateUIText(this);
-
-                // Show message about the language change
-                string message = selectedLanguage == LanguageManager.Language.German
-                    ? "Die Sprache wurde geändert."
-                    : "The language has been changed.";
-
-                string title = selectedLanguage == LanguageManager.Language.German
-                    ? "Sprache geändert"
-                    : "Language Changed";
-
-                MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        private void InitializeSystemTray()
-        {
-            bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
-
-            // Create tray menu
-            trayMenu = new ContextMenuStrip();
-            trayMenu.Items.Add(isGerman ? "Anzeigen" : "Show", null, OnTrayShowClick);
-            trayMenu.Items.Add(isGerman ? "Dienst starten" : "Start Service", null, OnTrayStartServiceClick);
-            trayMenu.Items.Add(isGerman ? "Dienst stoppen" : "Stop Service", null, OnTrayStopServiceClick);
-            trayMenu.Items.Add("-"); // Separator
-            trayMenu.Items.Add(isGerman ? "Beenden" : "Exit", null, OnTrayExitClick);
-
-            // Create tray icon
-            trayIcon = new NotifyIcon();
-            trayIcon.Text = isGerman ? "QR Scanner Dienst" : "QR Scanner Service";
-            trayIcon.Icon = SystemIcons.Application; // You can replace with your own icon
-            trayIcon.ContextMenuStrip = trayMenu;
-            trayIcon.Visible = true;
-            trayIcon.DoubleClick += OnTrayShowClick;
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            // If the user clicks the X button, minimize to tray instead of closing
-            if (e.CloseReason == CloseReason.UserClosing)
-            {
-                e.Cancel = true;
-                this.WindowState = FormWindowState.Minimized;
-                this.ShowInTaskbar = false;
-                trayIcon.Visible = true;
-
-                bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
-                string title = isGerman ? "QR Scanner Dienst" : "QR Scanner Service";
-                string message = isGerman
-                    ? "Die Anwendung läuft weiterhin im Hintergrund."
-                    : "The application is still running in the background.";
-
-                trayIcon.ShowBalloonTip(3000, title, message, ToolTipIcon.Info);
-            }
-            else
-            {
-                // Clean up tray icon
-                trayIcon.Visible = false;
-                trayIcon.Dispose();
-            }
-        }
-
-        private void OnTrayShowClick(object sender, EventArgs e)
-        {
-            this.WindowState = FormWindowState.Normal;
-            this.ShowInTaskbar = true;
-            this.Show();
-            this.BringToFront();
-        }
-
-        private void OnTrayStartServiceClick(object sender, EventArgs e)
-        {
-            if (btnStartService.Enabled)
-            {
-                btnStartService_Click(sender, e);
-            }
-        }
-
-        private void OnTrayStopServiceClick(object sender, EventArgs e)
-        {
-            if (btnStopService.Enabled)
-            {
-                btnStopService_Click(sender, e);
-            }
-        }
-
-        private void OnTrayExitClick(object sender, EventArgs e)
-        {
-            // Stop the service if it's running
-            if (btnStopService.Enabled)
-            {
-                try
-                {
-                    _serialPortService.Stop();
-                }
-                catch (Exception ex)
-                {
-                    bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
-                    string title = isGerman ? "Fehler" : "Error";
-                    string message = isGerman
-                        ? $"Fehler beim Stoppen des Dienstes: {ex.Message}"
-                        : $"Error stopping service: {ex.Message}";
-
-                    MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-
-            // Actually close the application
-            trayIcon.Visible = false;
-            trayIcon.Dispose();
-            Application.Exit();
-        }
-
-        private void chkStartWithWindows_CheckedChanged(object sender, EventArgs e)
-        {
-            Debug.WriteLine($"Start with Windows checkbox changed to: {chkStartWithWindows.Checked}");
-            StartupManager.SetStartWithWindows(chkStartWithWindows.Checked);
-
-            // Verify the change was successful
-            bool verifyEnabled = StartupManager.IsStartWithWindowsEnabled();
-            if (verifyEnabled != chkStartWithWindows.Checked)
-            {
-                Debug.WriteLine("Registry change verification failed");
-                chkStartWithWindows.Checked = verifyEnabled;
-            }
+            PopulateComPorts();
         }
 
         private void PopulateComPorts()
         {
+            string selectedPort = cmbPortName.SelectedItem?.ToString();
             cmbPortName.Items.Clear();
             foreach (string port in SerialPort.GetPortNames())
             {
@@ -229,7 +76,14 @@ namespace QRScannerService_GUI.Forms
             }
             if (cmbPortName.Items.Count > 0)
             {
-                cmbPortName.SelectedIndex = 0;
+                if (selectedPort != null && cmbPortName.Items.Contains(selectedPort))
+                {
+                    cmbPortName.SelectedItem = selectedPort;
+                }
+                else
+                {
+                    cmbPortName.SelectedIndex = 0;
+                }
             }
         }
 
@@ -264,7 +118,15 @@ namespace QRScannerService_GUI.Forms
             {
                 bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
                 string prefix = isGerman ? "QR Dienst - " : "QR Service - ";
-                trayIcon.Text = $"{prefix}{message}";
+                string fullMessage = $"{prefix}{message}";
+
+                // Ensure the text length does not exceed 64 characters
+                if (fullMessage.Length > 63)
+                {
+                    fullMessage = fullMessage.Substring(0, 63);
+                }
+
+                trayIcon.Text = fullMessage;
             }
         }
 
@@ -468,7 +330,169 @@ namespace QRScannerService_GUI.Forms
                 }
             }
         }
+
+        private void InitializeLanguageDropdown()
+        {
+            // Set the selected language in the dropdown
+            cmbLanguage.SelectedIndex = (int)LanguageManager.GetCurrentLanguage();
+
+            // Add event handler for language change
+            cmbLanguage.SelectedIndexChanged += CmbLanguage_SelectedIndexChanged;
+        }
+
+        private void CmbLanguage_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Get the selected language
+            LanguageManager.Language selectedLanguage = (LanguageManager.Language)cmbLanguage.SelectedIndex;
+
+            // If the language has changed
+            if (selectedLanguage != LanguageManager.GetCurrentLanguage())
+            {
+                // Set the new language
+                LanguageManager.SetLanguage(selectedLanguage);
+
+                // Update the UI text
+                LanguageManager.UpdateUIText(this);
+
+                // Show message about the language change
+                string message = selectedLanguage == LanguageManager.Language.German
+                    ? "Die Sprache wurde geändert."
+                    : "The language has been changed.";
+
+                string title = selectedLanguage == LanguageManager.Language.German
+                    ? "Sprache geändert"
+                    : "Language Changed";
+
+                MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void InitializeSystemTray()
+        {
+            bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+
+            // Create tray menu
+            trayMenu = new ContextMenuStrip();
+            trayMenu.Items.Add(isGerman ? "Anzeigen" : "Show", null, OnTrayShowClick);
+            trayMenu.Items.Add(isGerman ? "Dienst starten" : "Start Service", null, OnTrayStartServiceClick);
+            trayMenu.Items.Add(isGerman ? "Dienst stoppen" : "Stop Service", null, OnTrayStopServiceClick);
+            trayMenu.Items.Add("-"); // Separator
+            trayMenu.Items.Add(isGerman ? "Beenden" : "Exit", null, OnTrayExitClick);
+
+            // Create tray icon
+            trayIcon = new NotifyIcon();
+            trayIcon.Text = isGerman ? "QR Scanner Dienst" : "QR Scanner Service";
+            trayIcon.Icon = SystemIcons.Application; // You can replace with your own icon
+            trayIcon.ContextMenuStrip = trayMenu;
+            trayIcon.Visible = true;
+            trayIcon.DoubleClick += OnTrayShowClick;
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // If the user clicks the X button, minimize to tray instead of closing
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.WindowState = FormWindowState.Minimized;
+                this.ShowInTaskbar = false;
+                trayIcon.Visible = true;
+
+                bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+                string title = isGerman ? "QR Scanner Dienst" : "QR Scanner Service";
+                string message = isGerman
+                    ? "Die Anwendung läuft weiterhin im Hintergrund."
+                    : "The application is still running in the background.";
+
+                trayIcon.ShowBalloonTip(3000, title, message, ToolTipIcon.Info);
+            }
+            else
+            {
+                // Clean up tray icon
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+            }
+        }
+
+        private void OnTrayShowClick(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.Show();
+            this.BringToFront();
+        }
+
+        private void OnTrayStartServiceClick(object sender, EventArgs e)
+        {
+            if (btnStartService.Enabled)
+            {
+                btnStartService_Click(sender, e);
+            }
+        }
+
+        private void OnTrayStopServiceClick(object sender, EventArgs e)
+        {
+            if (btnStopService.Enabled)
+            {
+                btnStopService_Click(sender, e);
+            }
+        }
+
+        private void OnTrayExitClick(object sender, EventArgs e)
+        {
+            // Stop the service if it's running
+            if (btnStopService.Enabled)
+            {
+                try
+                {
+                    _serialPortService.Stop();
+                }
+                catch (Exception ex)
+                {
+                    bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+                    string title = isGerman ? "Fehler" : "Error";
+                    string message = isGerman
+                        ? $"Fehler beim Stoppen des Dienstes: {ex.Message}"
+                        : $"Error stopping service: {ex.Message}";
+
+                    MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            // Actually close the application
+            trayIcon.Visible = false;
+            trayIcon.Dispose();
+            Application.Exit();
+        }
+
+        private void chkStartWithWindows_CheckedChanged(object sender, EventArgs e)
+        {
+            Debug.WriteLine($"Start with Windows checkbox changed to: {chkStartWithWindows.Checked}");
+            StartupManager.SetStartWithWindows(chkStartWithWindows.Checked);
+
+            // Verify the change was successful
+            bool verifyEnabled = StartupManager.IsStartWithWindowsEnabled();
+            if (verifyEnabled != chkStartWithWindows.Checked)
+            {
+                Debug.WriteLine("Registry change verification failed");
+                chkStartWithWindows.Checked = verifyEnabled;
+            }
+        }
+
+        // Add this method to the MainForm class
+        public void UpdateTrayMenuText(bool isGerman)
+        {
+            if (trayMenu.Items["trayShow"] is ToolStripMenuItem trayShow)
+                trayShow.Text = isGerman ? "Anzeigen" : "Show";
+
+            if (trayMenu.Items["trayStartService"] is ToolStripMenuItem trayStartService)
+                trayStartService.Text = isGerman ? "Dienst starten" : "Start Service";
+
+            if (trayMenu.Items["trayStopService"] is ToolStripMenuItem trayStopService)
+                trayStopService.Text = isGerman ? "Dienst stoppen" : "Stop Service";
+
+            if (trayMenu.Items["trayExit"] is ToolStripMenuItem trayExit)
+                trayExit.Text = isGerman ? "Beenden" : "Exit";
+        }
     }
 }
-
-// Removed the unused private member 'StartupKey'

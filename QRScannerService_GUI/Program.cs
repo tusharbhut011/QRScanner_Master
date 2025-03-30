@@ -61,4 +61,3 @@ namespace QRScannerService_GUI
         }
     }
 }
-

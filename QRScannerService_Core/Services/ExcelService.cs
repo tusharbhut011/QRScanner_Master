@@ -42,8 +42,25 @@ namespace QRScannerService_Core.Services
                 try
                 {
                     _workbook = _excelApp.ActiveWorkbook;
-                    _worksheet = (Excel.Worksheet)_excelApp.ActiveSheet;
+                    if (_workbook == null)
+                    {
+                        _logger.LogWarning("No active workbook found.");
+                        throw new InvalidOperationException("Could not find an active workbook. Please ensure a workbook is open.");
+                    }
+
+                    _worksheet = (Excel.Worksheet)_workbook.ActiveSheet;
+                    if (_worksheet == null)
+                    {
+                        _logger.LogWarning("No active worksheet found.");
+                        throw new InvalidOperationException("Could not find an active worksheet. Please ensure a worksheet is open and selected.");
+                    }
+
                     _currentCell = _excelApp.ActiveCell;
+                    if (_currentCell == null)
+                    {
+                        _logger.LogWarning("No active cell found in the worksheet.");
+                        throw new InvalidOperationException("Could not find an active cell in the worksheet. Please ensure a cell is selected.");
+                    }
 
                     _logger.LogInformation($"Connected to active worksheet. Current cell: {_currentCell.Address}");
                 }
@@ -63,17 +80,18 @@ namespace QRScannerService_Core.Services
 
         public void AppendToExcel(string[] data)
         {
-            if (_worksheet == null || _currentCell == null)
+            if (_worksheet == null)
             {
                 throw new InvalidOperationException("Excel worksheet not initialized. Call Initialize first.");
             }
 
             try
             {
-                // Store the current selection
-                Excel.Range originalSelection = _excelApp.Selection;
+                // Find the last used row in the worksheet
+                int lastUsedRow = _worksheet.Cells[_worksheet.Rows.Count, 1].End(Excel.XlDirection.xlUp).Row;
 
-                _logger.LogInformation($"Writing to Excel at row {_currentCell.Row}, column {_currentCell.Column}");
+                // If the worksheet is empty, start from the first row
+                int nextRow = lastUsedRow == 1 && _worksheet.Cells[1, 1].Value == null ? 1 : lastUsedRow + 1;
 
                 // Define the column to check for duplicates (e.g., column 1)
                 int columnToCheck = 1;
@@ -98,19 +116,13 @@ namespace QRScannerService_Core.Services
                 }
                 else
                 {
-                    // Write data
+                    // Write data to the next available row
                     for (int i = 0; i < data.Length; i++)
                     {
-                        _currentCell.Offset[0, i].Value = data[i];
+                        _worksheet.Cells[nextRow, i + 1].Value = data[i];
                     }
 
-                    // Move to next row
-                    _currentCell = _currentCell.Offset[1, 0];
-
-                    // Restore original selection
-                    originalSelection.Select();
-
-                    _logger.LogInformation($"Data written successfully. Next position: Row {_currentCell.Row}, Column {_currentCell.Column}");
+                    _logger.LogInformation($"Data written successfully at row {nextRow}.");
                 }
             }
             catch (Exception ex)
@@ -164,12 +176,41 @@ namespace QRScannerService_Core.Services
         {
             try
             {
-                _excelApp = new Excel.Application();
+                // Check if the Excel application is already running
+                try
+                {
+                    _excelApp = (Excel.Application)Marshal.GetActiveObject("Excel.Application");
+                    _isExcelOwned = false;
+                    _logger.LogInformation("Connected to existing Excel instance");
+                }
+                catch (COMException)
+                {
+                    _excelApp = new Excel.Application();
+                    _isExcelOwned = true;
+                    _logger.LogInformation("Started a new Excel instance");
+                }
+
+                // Check if the workbook is already open
+                foreach (Excel.Workbook wb in _excelApp.Workbooks)
+                {
+                    if (wb.FullName.Equals(filePath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _workbook = wb;
+                        _worksheet = (Excel.Worksheet)_workbook.Sheets[1];
+                        _currentCell = _worksheet.Cells[1, 1];
+                        _excelApp.Visible = true;
+
+                        _logger.LogInformation($"Excel file is already opened: {filePath}");
+                        MessageBox.Show("Excel file is already opened or exists", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+                }
+
+                // Open the workbook if it is not already open
                 _workbook = _excelApp.Workbooks.Open(filePath);
                 _worksheet = (Excel.Worksheet)_workbook.Sheets[1];
                 _currentCell = _worksheet.Cells[1, 1];
                 _excelApp.Visible = true;
-                _isExcelOwned = true;
 
                 _logger.LogInformation($"Opened Excel file: {filePath}");
             }

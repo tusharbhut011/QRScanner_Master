@@ -45,6 +45,7 @@
             this.chkStartWithWindows = new System.Windows.Forms.CheckBox();
             this.lblLanguage = new System.Windows.Forms.Label();
             this.cmbLanguage = new System.Windows.Forms.ComboBox();
+            this.btnRefreshComPorts = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnStartService
@@ -217,11 +218,24 @@
             this.cmbLanguage.Size = new System.Drawing.Size(185, 24);
             this.cmbLanguage.TabIndex = 16;
             // 
+            // btnRefreshComPorts
+            // 
+            this.btnRefreshComPorts.Text = "⟳";
+            this.btnRefreshComPorts.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRefreshComPorts.Location = new System.Drawing.Point(352, 58);
+            this.btnRefreshComPorts.Margin = new System.Windows.Forms.Padding(4);
+            this.btnRefreshComPorts.Name = "btnRefreshComPorts";
+            this.btnRefreshComPorts.Size = new System.Drawing.Size(40, 28);
+            this.btnRefreshComPorts.TabIndex = 17;
+            this.btnRefreshComPorts.UseVisualStyleBackColor = true;
+            this.btnRefreshComPorts.Click += new System.EventHandler(this.btnRefreshComPorts_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(408, 414);
+            this.Controls.Add(this.btnRefreshComPorts);
             this.Controls.Add(this.cmbLanguage);
             this.Controls.Add(this.lblLanguage);
             this.Controls.Add(this.chkStartWithWindows);
@@ -247,7 +261,6 @@
             this.Text = "QR Scanner Service";
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
@@ -269,6 +282,6 @@
         private System.Windows.Forms.CheckBox chkStartWithWindows;
         private System.Windows.Forms.Label lblLanguage;
         private System.Windows.Forms.ComboBox cmbLanguage;
+        private System.Windows.Forms.Button btnRefreshComPorts;
     }
 }
-

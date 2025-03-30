@@ -94,24 +94,40 @@ namespace QRScannerService_GUI.Helpers
             form.Text = isGerman ? "QR Scanner Dienst - Bereit" : "QR Scanner Service";
 
             // Update buttons - access controls directly
-            ((Button)form.Controls["btnStartService"]).Text = isGerman ? "Dienst starten" : "Start Service";
-            ((Button)form.Controls["btnStopService"]).Text = isGerman ? "Dienst stoppen" : "Stop Service";
-            ((Button)form.Controls["btnAddWorkflow"]).Text = isGerman ? "Workflow hinzufügen" : "Add Workflow";
-            ((Button)form.Controls["btnBrowseExcel"]).Text = "...";
+            if (form.Controls["btnStartService"] is Button btnStartService)
+                btnStartService.Text = isGerman ? "Dienst starten" : "Start Service";
+
+            if (form.Controls["btnStopService"] is Button btnStopService)
+                btnStopService.Text = isGerman ? "Dienst stoppen" : "Stop Service";
+
+            if (form.Controls["btnAddWorkflow"] is Button btnAddWorkflow)
+                btnAddWorkflow.Text = isGerman ? "Workflow hinzufügen" : "Add Workflow";
+
+            if (form.Controls["btnBrowseExcel"] is Button btnBrowseExcel)
+                btnBrowseExcel.Text = "...";
 
             // Update labels - access controls directly
-            ((Label)form.Controls["lblPortName"]).Text = isGerman ? "Port Name:" : "Port Name:";
-            ((Label)form.Controls["lblBaudRate"]).Text = isGerman ? "Baudrate:" : "Baud Rate:";
-            ((Label)form.Controls["lblPrefix"]).Text = isGerman ? "Präfix:" : "Prefix:";
-            ((Label)form.Controls["lblExcelFile"]).Text = isGerman ? "Excel-Datei:" : "Excel File:";
-            ((Label)form.Controls["lblLanguage"]).Text = isGerman ? "Sprache:" : "Language:";
+            if (form.Controls["lblPortName"] is Label lblPortName)
+                lblPortName.Text = isGerman ? "Port Name:" : "Port Name:";
+
+            if (form.Controls["lblBaudRate"] is Label lblBaudRate)
+                lblBaudRate.Text = isGerman ? "Baudrate:" : "Baud Rate:";
+
+            if (form.Controls["lblPrefix"] is Label lblPrefix)
+                lblPrefix.Text = isGerman ? "Präfix:" : "Prefix:";
+
+            if (form.Controls["lblExcelFile"] is Label lblExcelFile)
+                lblExcelFile.Text = isGerman ? "Excel-Datei:" : "Excel File:";
+
+            if (form.Controls["lblLanguage"] is Label lblLanguage)
+                lblLanguage.Text = isGerman ? "Sprache:" : "Language:";
 
             // Update checkbox - access controls directly
-            ((CheckBox)form.Controls["chkStartWithWindows"]).Text = isGerman ? "Mit Windows starten" : "Start with Windows";
+            if (form.Controls["chkStartWithWindows"] is CheckBox chkStartWithWindows)
+                chkStartWithWindows.Text = isGerman ? "Mit Windows starten" : "Start with Windows";
 
             // Update tray menu using the public method
             form.UpdateTrayMenuText(isGerman);
         }
     }
 }
-
