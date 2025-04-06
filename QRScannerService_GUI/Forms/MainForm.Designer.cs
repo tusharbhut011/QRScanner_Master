@@ -46,6 +46,7 @@
             this.lblLanguage = new System.Windows.Forms.Label();
             this.cmbLanguage = new System.Windows.Forms.ComboBox();
             this.btnRefreshComPorts = new System.Windows.Forms.Button();
+            this.txtDataReceived = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnStartService
@@ -168,7 +169,7 @@
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new System.Drawing.Point(16, 375);
+            this.lblStatus.Location = new System.Drawing.Point(16, 410);
             this.lblStatus.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(0, 16);
@@ -230,11 +231,22 @@
             this.btnRefreshComPorts.UseVisualStyleBackColor = true;
             this.btnRefreshComPorts.Click += new System.EventHandler(this.btnRefreshComPorts_Click);
             // 
+            // txtDataReceived
+            // 
+            this.txtDataReceived.Location = new System.Drawing.Point(16, 430);
+            this.txtDataReceived.Margin = new System.Windows.Forms.Padding(4);
+            this.txtDataReceived.Multiline = true;
+            this.txtDataReceived.Name = "txtDataReceived";
+            this.txtDataReceived.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtDataReceived.Size = new System.Drawing.Size(375, 100);
+            this.txtDataReceived.TabIndex = 18;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(408, 414);
+            this.ClientSize = new System.Drawing.Size(408, 550);
+            this.Controls.Add(this.txtDataReceived);
             this.Controls.Add(this.btnRefreshComPorts);
             this.Controls.Add(this.cmbLanguage);
             this.Controls.Add(this.lblLanguage);
@@ -283,5 +295,6 @@
         private System.Windows.Forms.Label lblLanguage;
         private System.Windows.Forms.ComboBox cmbLanguage;
         private System.Windows.Forms.Button btnRefreshComPorts;
+        private System.Windows.Forms.TextBox txtDataReceived;
     }
 }

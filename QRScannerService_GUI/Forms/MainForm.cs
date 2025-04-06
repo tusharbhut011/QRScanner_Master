@@ -91,26 +91,21 @@ namespace QRScannerService_GUI.Forms
         {
             if (this.InvokeRequired)
             {
-                bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
-                string message = isGerman
-                    ? $"Daten empfangen und in Excel geschrieben: {data}"
-                    : $"Data received and written to Excel: {data}";
-
-                this.Invoke(new Action<string>(UpdateStatus), message);
+                this.Invoke(new Action<string>(UpdateDataReceived), data);
             }
             else
             {
-                bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
-                string message = isGerman
-                    ? $"Daten empfangen und in Excel geschrieben: {data}"
-                    : $"Data received and written to Excel: {data}";
-
-                UpdateStatus(message);
+                UpdateDataReceived(data);
 
                 // Append data to Excel and check for duplicates
                 string[] dataArray = data.Split(','); // Assuming data is comma-separated
                 _excelService.AppendToExcel(dataArray);
             }
+        }
+
+        private void UpdateDataReceived(string data)
+        {
+            txtDataReceived.AppendText(data + Environment.NewLine);
         }
 
         private void UpdateStatus(string message)
