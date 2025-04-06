@@ -93,16 +93,24 @@ namespace QRScannerService_Core.Services
                 // If the worksheet is empty, start from the first row
                 int nextRow = lastUsedRow == 1 && _worksheet.Cells[1, 1].Value == null ? 1 : lastUsedRow + 1;
 
-                // Define the column to check for duplicates (e.g., column 1)
-                int columnToCheck = 1;
                 bool isDuplicate = false;
 
-                // Check for duplicates in the specified column
+                // Check for duplicates across the entire row
                 Excel.Range usedRange = _worksheet.UsedRange;
                 for (int row = 1; row <= usedRange.Rows.Count; row++)
                 {
-                    Excel.Range cell = _worksheet.Cells[row, columnToCheck];
-                    if (cell.Value != null && cell.Value.ToString() == data[0])
+                    bool rowIsDuplicate = true;
+                    for (int col = 1; col <= data.Length; col++)
+                    {
+                        Excel.Range cell = _worksheet.Cells[row, col];
+                        if (cell.Value == null || cell.Value.ToString() != data[col - 1])
+                        {
+                            rowIsDuplicate = false;
+                            break;
+                        }
+                    }
+
+                    if (rowIsDuplicate)
                     {
                         isDuplicate = true;
                         break;
@@ -111,8 +119,7 @@ namespace QRScannerService_Core.Services
 
                 if (isDuplicate)
                 {
-                    _logger.LogInformation("Data is already added");
-                    MessageBox.Show("Data is already added", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Duplicate Data Found", "Duplicate Data", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {

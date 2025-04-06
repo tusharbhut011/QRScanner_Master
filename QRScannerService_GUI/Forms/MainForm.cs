@@ -106,6 +106,10 @@ namespace QRScannerService_GUI.Forms
                     : $"Data received and written to Excel: {data}";
 
                 UpdateStatus(message);
+
+                // Append data to Excel and check for duplicates
+                string[] dataArray = data.Split(','); // Assuming data is comma-separated
+                _excelService.AppendToExcel(dataArray);
             }
         }
 
