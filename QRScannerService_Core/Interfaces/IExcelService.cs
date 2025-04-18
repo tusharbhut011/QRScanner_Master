@@ -5,27 +5,9 @@
         void Initialize();
         void AppendToExcel(string[] data);
         void Cleanup();
-        void OpenExcelFile(string filePath); // Add this method
+        void OpenExcelFile(string filePath);
+        void StoreDataWithoutExcel(string[] data, string filePath);
+        void SaveCollectedDataToExcel();
     }
 }
-
-
-
-//namespace QRScannerService_Core.Interfaces
-//{
-//    public interface IExcelService
-//    {
-//        void AppendToExcel(string filePath, string data);
-//        bool IsFileOpen(string filePath);
-//    }
-//}
-
-//namespace QRScannerService_Core.Interfaces
-//{
-//    public interface IExcelService
-//    {
-//        void AppendToExcel(string[] data);
-//    }
-//}
-
 

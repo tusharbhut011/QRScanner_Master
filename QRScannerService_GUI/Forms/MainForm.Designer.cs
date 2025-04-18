@@ -47,6 +47,7 @@
             this.cmbLanguage = new System.Windows.Forms.ComboBox();
             this.btnRefreshComPorts = new System.Windows.Forms.Button();
             this.txtDataReceived = new System.Windows.Forms.TextBox();
+            this.chkNoExcel = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnStartService
@@ -241,11 +242,23 @@
             this.txtDataReceived.Size = new System.Drawing.Size(375, 100);
             this.txtDataReceived.TabIndex = 18;
             // 
+            // chkNoExcel
+            // 
+            this.chkNoExcel.AutoSize = true;
+            this.chkNoExcel.Location = new System.Drawing.Point(16, 540);
+            this.chkNoExcel.Margin = new System.Windows.Forms.Padding(4);
+            this.chkNoExcel.Name = "chkNoExcel";
+            this.chkNoExcel.Size = new System.Drawing.Size(122, 20);
+            this.chkNoExcel.TabIndex = 19;
+            this.chkNoExcel.Text = "Don\'t open Excel";
+            this.chkNoExcel.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(408, 550);
+            this.ClientSize = new System.Drawing.Size(408, 570);
+            this.Controls.Add(this.chkNoExcel);
             this.Controls.Add(this.txtDataReceived);
             this.Controls.Add(this.btnRefreshComPorts);
             this.Controls.Add(this.cmbLanguage);
@@ -296,5 +309,6 @@
         private System.Windows.Forms.ComboBox cmbLanguage;
         private System.Windows.Forms.Button btnRefreshComPorts;
         private System.Windows.Forms.TextBox txtDataReceived;
+        private System.Windows.Forms.CheckBox chkNoExcel;
     }
 }

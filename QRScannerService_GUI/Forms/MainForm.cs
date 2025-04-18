@@ -22,6 +22,10 @@ namespace QRScannerService_GUI.Forms
         private NotifyIcon trayIcon;
         private ContextMenuStrip trayMenu;
         private const string StartupKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
+        private bool _isHeadlessMode = false;
+
+        // Add this at the class level
+        private static string _lastUsedPrefix = string.Empty;
 
         public MainForm(ISerialPortService serialPortService, IWorkflowService workflowService, IExcelService excelService)
         {
@@ -36,6 +40,9 @@ namespace QRScannerService_GUI.Forms
 
             // Initialize language dropdown
             InitializeLanguageDropdown();
+
+            // Load saved prefix
+            LoadSavedPrefix();
 
             PopulateComPorts();
             btnStopService.Enabled = false;
@@ -59,6 +66,15 @@ namespace QRScannerService_GUI.Forms
 
             // Apply language to UI
             LanguageManager.UpdateUIText(this);
+
+            // Update the "Don't open Excel" checkbox text based on language
+            UpdateNoExcelCheckboxText();
+        }
+
+        private void UpdateNoExcelCheckboxText()
+        {
+            bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+            chkNoExcel.Text = isGerman ? "Excel nicht öffnen" : "Don't open Excel";
         }
 
         private void btnRefreshComPorts_Click(object sender, EventArgs e)
@@ -97,9 +113,17 @@ namespace QRScannerService_GUI.Forms
             {
                 UpdateDataReceived(data);
 
-                // Append data to Excel and check for duplicates
+                // Append data to Excel or store it without Excel
                 string[] dataArray = data.Split(','); // Assuming data is comma-separated
-                _excelService.AppendToExcel(dataArray);
+
+                if (_isHeadlessMode)
+                {
+                    _excelService.StoreDataWithoutExcel(dataArray, _currentWorkflow.ExcelFile);
+                }
+                else
+                {
+                    _excelService.AppendToExcel(dataArray);
+                }
             }
         }
 
@@ -142,6 +166,19 @@ namespace QRScannerService_GUI.Forms
                 MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+
+            if (string.IsNullOrWhiteSpace(txtExcelFile.Text))
+            {
+                bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+                string title = isGerman ? "Fehler" : "Error";
+                string message = isGerman
+                    ? "Bitte wählen Sie eine Excel-Datei aus."
+                    : "Please select an Excel file.";
+
+                MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
             return true;
         }
 
@@ -180,13 +217,33 @@ namespace QRScannerService_GUI.Forms
                 string selectedPort = cmbPortName.SelectedItem.ToString();
                 int baudRate = int.Parse(txtBaudRate.Text);
 
-                // Open Excel file if not already open
-                _excelService.OpenExcelFile(_currentWorkflow.ExcelFile);
+                // Set headless mode based on checkbox
+                _isHeadlessMode = chkNoExcel.Checked;
 
-                // Initialize Excel first
-                _excelService.Initialize();
+                if (_isHeadlessMode)
+                {
+                    // In headless mode, we don't need to initialize Excel
+                    // Just store the target file path
+                    _excelService.StoreDataWithoutExcel(new string[0], _currentWorkflow.ExcelFile);
 
-                // Then initialize and start the serial port service
+                    bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+                    string infoTitle = isGerman ? "Information" : "Information";
+                    string infoMessage = isGerman
+                        ? "Excel wird nicht geöffnet. Daten werden im Speicher gesammelt und später in die Excel-Datei geschrieben."
+                        : "Excel will not be opened. Data will be collected in memory and written to the Excel file later.";
+
+                    MessageBox.Show(infoMessage, infoTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    // Open Excel file if not already open
+                    _excelService.OpenExcelFile(_currentWorkflow.ExcelFile);
+
+                    // Initialize Excel
+                    _excelService.Initialize();
+                }
+
+                // Initialize and start the serial port service
                 _serialPortService.Initialize(selectedPort, baudRate);
                 _serialPortService.Start();
 
@@ -230,8 +287,47 @@ namespace QRScannerService_GUI.Forms
             {
                 _serialPortService.Stop();
 
-                bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
-                string message = isGerman
+                // If in headless mode, save the collected data to Excel
+                if (_isHeadlessMode)
+                {
+                    bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+                    string confirmTitle = isGerman ? "Daten speichern" : "Save Data";
+                    string confirmMessage = isGerman
+                        ? "Möchten Sie die gesammelten Daten jetzt in Excel speichern?"
+                        : "Do you want to save the collected data to Excel now?";
+
+                    DialogResult result = MessageBox.Show(confirmMessage, confirmTitle,
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        try
+                        {
+                            _excelService.SaveCollectedDataToExcel();
+
+                            string successTitle = isGerman ? "Erfolg" : "Success";
+                            string successMessage = isGerman
+                                ? "Daten wurden erfolgreich in Excel gespeichert."
+                                : "Data was successfully saved to Excel.";
+
+                            MessageBox.Show(successMessage, successTitle,
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            string errorTitle = isGerman ? "Fehler" : "Error";
+                            string errorMessage = isGerman
+                                ? $"Fehler beim Speichern der Daten: {ex.Message}"
+                                : $"Error saving data: {ex.Message}";
+
+                            MessageBox.Show(errorMessage, errorTitle,
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+
+                bool isGermanStatus = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+                string message = isGermanStatus
                     ? "Dienst erfolgreich gestoppt"
                     : "Service stopped successfully";
 
@@ -269,6 +365,9 @@ namespace QRScannerService_GUI.Forms
                     Prefix = txtPrefix.Text,
                     ExcelFile = txtExcelFile.Text
                 };
+
+                // Save the prefix to settings
+                SaveCurrentPrefix();
 
                 if (!_workflowService.GetAllWorkflows().Any(w => w.Prefix == workflow.Prefix))
                 {
@@ -352,6 +451,9 @@ namespace QRScannerService_GUI.Forms
 
                 // Update the UI text
                 LanguageManager.UpdateUIText(this);
+
+                // Update the "Don't open Excel" checkbox text
+                UpdateNoExcelCheckboxText();
 
                 // Show message about the language change
                 string message = selectedLanguage == LanguageManager.Language.German
@@ -481,17 +583,47 @@ namespace QRScannerService_GUI.Forms
         // Add this method to the MainForm class
         public void UpdateTrayMenuText(bool isGerman)
         {
-            if (trayMenu.Items["trayShow"] is ToolStripMenuItem trayShow)
-                trayShow.Text = isGerman ? "Anzeigen" : "Show";
+            if (trayMenu.Items.Count >= 5)
+            {
+                trayMenu.Items[0].Text = isGerman ? "Anzeigen" : "Show";
+                trayMenu.Items[1].Text = isGerman ? "Dienst starten" : "Start Service";
+                trayMenu.Items[2].Text = isGerman ? "Dienst stoppen" : "Stop Service";
+                trayMenu.Items[4].Text = isGerman ? "Beenden" : "Exit";
+            }
+        }
 
-            if (trayMenu.Items["trayStartService"] is ToolStripMenuItem trayStartService)
-                trayStartService.Text = isGerman ? "Dienst starten" : "Start Service";
+        private void LoadSavedPrefix()
+        {
+            try
+            {
+                // Load from static variable
+                if (!string.IsNullOrEmpty(_lastUsedPrefix))
+                {
+                    txtPrefix.Text = _lastUsedPrefix;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't show a message to the user
+                Debug.WriteLine($"Error loading saved prefix: {ex.Message}");
+            }
+        }
 
-            if (trayMenu.Items["trayStopService"] is ToolStripMenuItem trayStopService)
-                trayStopService.Text = isGerman ? "Dienst stoppen" : "Stop Service";
-
-            if (trayMenu.Items["trayExit"] is ToolStripMenuItem trayExit)
-                trayExit.Text = isGerman ? "Beenden" : "Exit";
+        private void SaveCurrentPrefix()
+        {
+            try
+            {
+                // Save to static variable
+                if (!string.IsNullOrEmpty(txtPrefix.Text))
+                {
+                    _lastUsedPrefix = txtPrefix.Text;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't show a message to the user
+                Debug.WriteLine($"Error saving prefix: {ex.Message}");
+            }
         }
     }
 }

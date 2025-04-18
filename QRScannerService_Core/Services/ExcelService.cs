@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.Extensions.Logging;
@@ -16,6 +18,11 @@ namespace QRScannerService_Core.Services
         private Excel.Range _currentCell;
         private bool _isExcelOwned;
 
+        // Collection to store data when Excel is not open
+        private List<string[]> _collectedData = new List<string[]>();
+        private string _targetExcelFile;
+        private bool _isHeadlessMode = false;
+
         public ExcelService(ILogger<ExcelService> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -23,6 +30,12 @@ namespace QRScannerService_Core.Services
 
         public void Initialize()
         {
+            if (_isHeadlessMode)
+            {
+                _logger.LogInformation("Running in headless mode - Excel will not be opened");
+                return;
+            }
+
             try
             {
                 // Try to get the running Excel instance
@@ -80,6 +93,13 @@ namespace QRScannerService_Core.Services
 
         public void AppendToExcel(string[] data)
         {
+            // If in headless mode, just store the data
+            if (_isHeadlessMode)
+            {
+                StoreDataWithoutExcel(data, _targetExcelFile);
+                return;
+            }
+
             if (_worksheet == null)
             {
                 throw new InvalidOperationException("Excel worksheet not initialized. Call Initialize first.");
@@ -93,44 +113,13 @@ namespace QRScannerService_Core.Services
                 // If the worksheet is empty, start from the first row
                 int nextRow = lastUsedRow == 1 && _worksheet.Cells[1, 1].Value == null ? 1 : lastUsedRow + 1;
 
-                bool isDuplicate = false;
-
-                // Check for duplicates across the entire row
-                Excel.Range usedRange = _worksheet.UsedRange;
-                for (int row = 1; row <= usedRange.Rows.Count; row++)
+                // Write data to the next available row - No duplicate checking
+                for (int i = 0; i < data.Length; i++)
                 {
-                    bool rowIsDuplicate = true;
-                    for (int col = 1; col <= data.Length; col++)
-                    {
-                        Excel.Range cell = _worksheet.Cells[row, col];
-                        if (cell.Value == null || cell.Value.ToString() != data[col - 1])
-                        {
-                            rowIsDuplicate = false;
-                            break;
-                        }
-                    }
-
-                    if (rowIsDuplicate)
-                    {
-                        isDuplicate = true;
-                        break;
-                    }
+                    _worksheet.Cells[nextRow, i + 1].Value = data[i];
                 }
 
-                if (isDuplicate)
-                {
-                    MessageBox.Show("Duplicate Data Found", "Duplicate Data", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-                else
-                {
-                    // Write data to the next available row
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        _worksheet.Cells[nextRow, i + 1].Value = data[i];
-                    }
-
-                    _logger.LogInformation($"Data written successfully at row {nextRow}.");
-                }
+                _logger.LogInformation($"Data written successfully at row {nextRow}.");
             }
             catch (Exception ex)
             {
@@ -141,6 +130,19 @@ namespace QRScannerService_Core.Services
 
         public void Cleanup()
         {
+            // If in headless mode, save collected data to Excel
+            if (_isHeadlessMode && _collectedData.Count > 0)
+            {
+                try
+                {
+                    SaveCollectedDataToExcel();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to save collected data to Excel during cleanup");
+                }
+            }
+
             try
             {
                 if (_currentCell != null)
@@ -224,6 +226,114 @@ namespace QRScannerService_Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to open Excel file: {filePath}");
+                throw;
+            }
+        }
+
+        // New method to store data without opening Excel
+        public void StoreDataWithoutExcel(string[] data, string filePath)
+        {
+            _isHeadlessMode = true;
+            _targetExcelFile = filePath;
+
+            // Store data without duplicate checking
+            if (data.Length > 0)  // Only add non-empty data arrays
+            {
+                _collectedData.Add(data);
+                _logger.LogInformation($"Data stored in memory. Total records: {_collectedData.Count}");
+            }
+        }
+
+        // New method to save collected data to Excel
+        public void SaveCollectedDataToExcel()
+        {
+            if (_collectedData.Count == 0)
+            {
+                _logger.LogInformation("No data to save to Excel");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_targetExcelFile))
+            {
+                _logger.LogWarning("No target Excel file specified");
+                return;
+            }
+
+            try
+            {
+                bool fileExists = File.Exists(_targetExcelFile);
+
+                // Create a new Excel application
+                Excel.Application excelApp = new Excel.Application();
+                Excel.Workbook workbook = null;
+                Excel.Worksheet worksheet = null;
+
+                try
+                {
+                    if (fileExists)
+                    {
+                        // Open existing file
+                        workbook = excelApp.Workbooks.Open(_targetExcelFile);
+                        worksheet = (Excel.Worksheet)workbook.Sheets[1];
+
+                        // Find the last used row
+                        int lastRow = worksheet.Cells[worksheet.Rows.Count, 1].End(Excel.XlDirection.xlUp).Row;
+                        int startRow = lastRow == 1 && worksheet.Cells[1, 1].Value == null ? 1 : lastRow + 1;
+
+                        // Write data
+                        for (int i = 0; i < _collectedData.Count; i++)
+                        {
+                            string[] row = _collectedData[i];
+                            for (int j = 0; j < row.Length; j++)
+                            {
+                                worksheet.Cells[startRow + i, j + 1].Value = row[j];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Create new file
+                        workbook = excelApp.Workbooks.Add();
+                        worksheet = (Excel.Worksheet)workbook.Sheets[1];
+
+                        // Write data
+                        for (int i = 0; i < _collectedData.Count; i++)
+                        {
+                            string[] row = _collectedData[i];
+                            for (int j = 0; j < row.Length; j++)
+                            {
+                                worksheet.Cells[i + 1, j + 1].Value = row[j];
+                            }
+                        }
+
+                        // Save as new file
+                        workbook.SaveAs(_targetExcelFile);
+                    }
+
+                    _logger.LogInformation($"Successfully saved {_collectedData.Count} records to {_targetExcelFile}");
+
+                    // Clear the collected data
+                    _collectedData.Clear();
+                }
+                finally
+                {
+                    // Clean up
+                    if (worksheet != null) Marshal.ReleaseComObject(worksheet);
+                    if (workbook != null)
+                    {
+                        workbook.Close(true);
+                        Marshal.ReleaseComObject(workbook);
+                    }
+                    if (excelApp != null)
+                    {
+                        excelApp.Quit();
+                        Marshal.ReleaseComObject(excelApp);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to save collected data to Excel file: {_targetExcelFile}");
                 throw;
             }
         }

@@ -7,6 +7,6 @@
     "\\QRScannerService_GUI\\Forms",
     "\\QRScannerService_GUI\\Helpers"
   ],
-  "SelectedNode": "\\QRScannerService_GUI",
+  "SelectedNode": "\\QRScannerService_GUI\\Forms\\MainForm.cs",
   "PreviewInSolutionExplorer": false
 }
