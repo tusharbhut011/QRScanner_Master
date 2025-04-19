@@ -19,7 +19,7 @@ namespace QRScannerService_Core.Services
         private bool _isExcelOwned;
 
         // Collection to store data when Excel is not open
-        private List<string[]> _collectedData = new List<string[]>();
+        private List<TimestampedData> _collectedData = new List<TimestampedData>();
         private string _targetExcelFile;
         private bool _isHeadlessMode = false;
 
@@ -113,13 +113,17 @@ namespace QRScannerService_Core.Services
                 // If the worksheet is empty, start from the first row
                 int nextRow = lastUsedRow == 1 && _worksheet.Cells[1, 1].Value == null ? 1 : lastUsedRow + 1;
 
+                // Add timestamp as the first column
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                _worksheet.Cells[nextRow, 1].Value = timestamp;
+
                 // Write data to the next available row - No duplicate checking
                 for (int i = 0; i < data.Length; i++)
                 {
-                    _worksheet.Cells[nextRow, i + 1].Value = data[i];
+                    _worksheet.Cells[nextRow, i + 2].Value = data[i]; // +2 because column 1 is timestamp
                 }
 
-                _logger.LogInformation($"Data written successfully at row {nextRow}.");
+                _logger.LogInformation($"Data written successfully at row {nextRow} with timestamp {timestamp}.");
             }
             catch (Exception ex)
             {
@@ -239,8 +243,15 @@ namespace QRScannerService_Core.Services
             // Store data without duplicate checking
             if (data.Length > 0)  // Only add non-empty data arrays
             {
-                _collectedData.Add(data);
-                _logger.LogInformation($"Data stored in memory. Total records: {_collectedData.Count}");
+                // Create a timestamped data object
+                var timestampedData = new TimestampedData
+                {
+                    Timestamp = DateTime.Now,
+                    Data = data
+                };
+
+                _collectedData.Add(timestampedData);
+                _logger.LogInformation($"Data stored in memory with timestamp {timestampedData.Timestamp}. Total records: {_collectedData.Count}");
             }
         }
 
@@ -280,13 +291,18 @@ namespace QRScannerService_Core.Services
                         int lastRow = worksheet.Cells[worksheet.Rows.Count, 1].End(Excel.XlDirection.xlUp).Row;
                         int startRow = lastRow == 1 && worksheet.Cells[1, 1].Value == null ? 1 : lastRow + 1;
 
-                        // Write data
+                        // Write data with timestamps
                         for (int i = 0; i < _collectedData.Count; i++)
                         {
-                            string[] row = _collectedData[i];
-                            for (int j = 0; j < row.Length; j++)
+                            var item = _collectedData[i];
+
+                            // Write timestamp in first column
+                            worksheet.Cells[startRow + i, 1].Value = item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
+
+                            // Write data in subsequent columns
+                            for (int j = 0; j < item.Data.Length; j++)
                             {
-                                worksheet.Cells[startRow + i, j + 1].Value = row[j];
+                                worksheet.Cells[startRow + i, j + 2].Value = item.Data[j]; // +2 because column 1 is timestamp
                             }
                         }
                     }
@@ -296,13 +312,18 @@ namespace QRScannerService_Core.Services
                         workbook = excelApp.Workbooks.Add();
                         worksheet = (Excel.Worksheet)workbook.Sheets[1];
 
-                        // Write data
+                        // Write data with timestamps
                         for (int i = 0; i < _collectedData.Count; i++)
                         {
-                            string[] row = _collectedData[i];
-                            for (int j = 0; j < row.Length; j++)
+                            var item = _collectedData[i];
+
+                            // Write timestamp in first column
+                            worksheet.Cells[i + 1, 1].Value = item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
+
+                            // Write data in subsequent columns
+                            for (int j = 0; j < item.Data.Length; j++)
                             {
-                                worksheet.Cells[i + 1, j + 1].Value = row[j];
+                                worksheet.Cells[i + 1, j + 2].Value = item.Data[j]; // +2 because column 1 is timestamp
                             }
                         }
 
@@ -336,6 +357,21 @@ namespace QRScannerService_Core.Services
                 _logger.LogError(ex, $"Failed to save collected data to Excel file: {_targetExcelFile}");
                 throw;
             }
+        }
+
+        public void ClearHeadlessMode()
+        {
+            _isHeadlessMode = false;
+            _collectedData.Clear();
+            _targetExcelFile = null;
+            _logger.LogInformation("Headless mode cleared and collected data reset");
+        }
+
+        // Class to store data with timestamp
+        private class TimestampedData
+        {
+            public DateTime Timestamp { get; set; }
+            public string[] Data { get; set; }
         }
     }
 }

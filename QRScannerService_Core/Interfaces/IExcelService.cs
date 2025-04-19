@@ -8,6 +8,6 @@
         void OpenExcelFile(string filePath);
         void StoreDataWithoutExcel(string[] data, string filePath);
         void SaveCollectedDataToExcel();
+        void ClearHeadlessMode();
     }
 }
-
