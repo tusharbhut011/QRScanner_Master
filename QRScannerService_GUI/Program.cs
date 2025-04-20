@@ -6,12 +6,13 @@ using QRScannerService_Core.Interfaces;
 using QRScannerService_Core.Services;
 using QRScannerService_GUI.Forms;
 using QRScannerService_GUI.Helpers;
-using System.Threading;
 
 namespace QRScannerService_GUI
 {
     static class Program
     {
+        private static IExcelService _excelService;
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -31,10 +32,13 @@ namespace QRScannerService_GUI
                 // Initialize services
                 var serialPortService = serviceProvider.GetRequiredService<ISerialPortService>();
                 var workflowService = serviceProvider.GetRequiredService<IWorkflowService>();
-                var excelService = serviceProvider.GetRequiredService<IExcelService>();
+                _excelService = serviceProvider.GetRequiredService<IExcelService>();
+
+                // Subscribe to the ProcessExit event
+                AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
                 // Create the main form
-                MainForm mainForm = new MainForm(serialPortService, workflowService, excelService);
+                MainForm mainForm = new MainForm(serialPortService, workflowService, _excelService);
 
                 // Check if we should start minimized (when launched at Windows startup)
                 bool startMinimized = Array.Exists(args, arg => arg.ToLower() == "/minimized");
@@ -58,6 +62,20 @@ namespace QRScannerService_GUI
             services.AddSingleton<ISerialPortService, SerialPortService>();
             services.AddSingleton<IWorkflowService, WorkflowService>();
             services.AddSingleton<IExcelService, ExcelService>();
+        }
+
+        private static void OnProcessExit(object sender, EventArgs e)
+        {
+            try
+            {
+                // Save collected data to Excel
+                _excelService.SaveCollectedDataToExcel();
+            }
+            catch (Exception ex)
+            {
+                // Log the error (if logging is available) or handle it as needed
+                Console.WriteLine($"Error saving data during process exit: {ex.Message}");
+            }
         }
     }
 }

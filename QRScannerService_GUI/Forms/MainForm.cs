@@ -612,14 +612,17 @@ namespace QRScannerService_GUI.Forms
                 try
                 {
                     _serialPortService.Stop();
+
+                    // Save collected data to Excel
+                    _excelService.SaveCollectedDataToExcel();
                 }
                 catch (Exception ex)
                 {
                     bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
                     string title = isGerman ? "Fehler" : "Error";
                     string message = isGerman
-                        ? $"Fehler beim Stoppen des Dienstes: {ex.Message}"
-                        : $"Error stopping service: {ex.Message}";
+                        ? $"Fehler beim Speichern der Daten: {ex.Message}"
+                        : $"Error saving data: {ex.Message}";
 
                     MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }

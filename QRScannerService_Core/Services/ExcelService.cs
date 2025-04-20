@@ -305,6 +305,9 @@ namespace QRScannerService_Core.Services
                                 worksheet.Cells[startRow + i, j + 2].Value = item.Data[j]; // +2 because column 1 is timestamp
                             }
                         }
+
+                        // Save the workbook
+                        workbook.Save();
                     }
                     else
                     {
@@ -350,7 +353,16 @@ namespace QRScannerService_Core.Services
                         excelApp.Quit();
                         Marshal.ReleaseComObject(excelApp);
                     }
+
+                    // Force garbage collection to release COM objects
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
                 }
+
+                // Add a small delay to ensure the file is written to disk
+                System.Threading.Thread.Sleep(1000);
+
+                _logger.LogInformation("Excel save operation completed successfully.");
             }
             catch (Exception ex)
             {
