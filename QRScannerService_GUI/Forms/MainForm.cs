@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Diagnostics;
 using System.Threading;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace QRScannerService_GUI.Forms
 {
@@ -31,20 +32,20 @@ namespace QRScannerService_GUI.Forms
         {
             // Set the current UI culture before initializing components
             LanguageManager.SetLanguage(LanguageManager.GetCurrentLanguage());
-            
+
             InitializeComponent();
-            
+
             // Set "Don't open Excel" checkbox to checked by default
             chkNoExcel.Checked = true;
             _isHeadlessMode = true;
-            
+
             _serialPortService = serialPortService ?? throw new ArgumentNullException(nameof(serialPortService));
             _workflowService = workflowService ?? throw new ArgumentNullException(nameof(workflowService));
             _excelService = excelService ?? throw new ArgumentNullException(nameof(excelService));
 
             // Initialize language dropdown
             InitializeLanguageDropdown();
-            
+
             // Load saved prefix
             LoadSavedPrefix();
 
@@ -67,16 +68,16 @@ namespace QRScannerService_GUI.Forms
             // Initialize auto-start checkbox
             chkStartWithWindows.Checked = StartupManager.IsStartWithWindowsEnabled();
             chkStartWithWindows.CheckedChanged += chkStartWithWindows_CheckedChanged;
-            
+
             // Apply language to UI
             LanguageManager.UpdateUIText(this);
-            
+
             // Update the "Don't open Excel" checkbox text based on language
             UpdateNoExcelCheckboxText();
 
             chkNoExcel.CheckedChanged += ChkNoExcel_CheckedChanged;
         }
-        
+
         private void UpdateNoExcelCheckboxText()
         {
             bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
@@ -119,17 +120,72 @@ namespace QRScannerService_GUI.Forms
             {
                 UpdateDataReceived(data);
 
-                // Append data to Excel or store it without Excel
-                string[] dataArray = data.Split(','); // Assuming data is comma-separated
-                
+                // Parse the QR code data using the custom parser
+                string[] parsedData = ParseQRCodeData(data);
+
                 if (_isHeadlessMode)
                 {
-                    _excelService.StoreDataWithoutExcel(dataArray, _currentWorkflow.ExcelFile);
+                    _excelService.StoreDataWithoutExcel(parsedData, _currentWorkflow.ExcelFile);
                 }
                 else
                 {
-                    _excelService.AppendToExcel(dataArray);
+                    _excelService.AppendToExcel(parsedData);
                 }
+            }
+        }
+
+        private string[] ParseQRCodeData(string data)
+        {
+            try
+            {
+                // Log the raw data for debugging
+                Debug.WriteLine("Raw QR Code Data: " + data);
+
+                // Split by single quote and filter out empty entries
+                string[] parts = data.Split('\'')
+                    .Where(p => !string.IsNullOrWhiteSpace(p))
+                    .ToArray();
+
+                // Create an array to hold our parsed data in the correct order for Excel columns
+                // The order should match the column headers in ExcelService
+                string[] parsedData = new string[17]; // 17 columns excluding timestamp
+
+                // Map the parts to the correct positions in our parsedData array
+                // This mapping is based on the observed format of the QR code data
+                if (parts.Length >= 1) parsedData[0] = parts[0].Trim(); // Examiner (Bockisch)
+                if (parts.Length >= 2) parsedData[1] = parts[1].Trim(); // Second Reviewer (Papenbrock)
+                if (parts.Length >= 3) parsedData[8] = parts[2].Trim(); // Student ID (123456)
+                if (parts.Length >= 4) parsedData[2] = parts[3].Trim(); // Surname (Doe)
+                if (parts.Length >= 5) parsedData[1] = parts[4].Trim(); // First Name (John)
+                if (parts.Length >= 6) parsedData[6] = parts[5].Trim(); // Alumni Agreement (Computer Science)
+                if (parts.Length >= 7) parsedData[7] = parts[6].Trim(); // Preferred Language (Master)
+                if (parts.Length >= 8) parsedData[8] = parts[7].Trim(); // Student ID (20181)
+                if (parts.Length >= 9) parsedData[14] = parts[8].Trim(); // Title (Prof.)
+                if (parts.Length >= 10) parsedData[15] = parts[9].Trim(); // Start Date (2025-04-15)
+                if (parts.Length >= 11) parsedData[9] = parts[10].Trim(); // Uni Account (jd123@students.uni-marburg.de)
+                if (parts.Length >= 12) parsedData[3] = parts[11].Trim(); // Private Email (johndoe@students.uni-marburg.de)
+                if (parts.Length >= 13) parsedData[4] = parts[12].Trim(); // Phone (01761234567)
+                if (parts.Length >= 14) parsedData[6] = parts[13].Trim(); // Alumni Agreement (TRUE)
+                if (parts.Length >= 15) parsedData[5] = parts[14].Trim(); // Postal Address (Musterstrasse 12, 35037 Marburg, Germany)
+                if (parts.Length >= 16) parsedData[7] = parts[15].Trim(); // Preferred Language (en)
+                if (parts.Length >= 17) parsedData[10] = parts[16].Trim(); // Birthdate (1988-04-01)
+                if (parts.Length >= 18) parsedData[11] = parts[17].Trim(); // Birthplace (Berlin, Germany)
+                if (parts.Length >= 19) parsedData[16] = parts[18].Trim(); // CP Requirement (zugelassen)
+                if (parts.Length >= 20) parsedData[16] = parts[19].Trim(); // Comment (The applicant has submitted...)
+
+                // Log the parsed data for debugging
+                for (int i = 0; i < parsedData.Length; i++)
+                {
+                    Debug.WriteLine($"Parsed Data [{i}]: {parsedData[i]}");
+                }
+
+                return parsedData;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error parsing QR code data: {ex.Message}");
+                // Return empty array in case of error
+                return new string[17];
             }
         }
 
@@ -172,7 +228,7 @@ namespace QRScannerService_GUI.Forms
                 MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            
+
             if (string.IsNullOrWhiteSpace(txtExcelFile.Text))
             {
                 bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
@@ -184,7 +240,7 @@ namespace QRScannerService_GUI.Forms
                 MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            
+
             return true;
         }
 
@@ -222,7 +278,7 @@ namespace QRScannerService_GUI.Forms
 
                 string selectedPort = cmbPortName.SelectedItem.ToString();
                 int baudRate = int.Parse(txtBaudRate.Text);
-                
+
                 // Set headless mode based on checkbox
                 _isHeadlessMode = chkNoExcel.Checked;
 
@@ -231,7 +287,7 @@ namespace QRScannerService_GUI.Forms
                     // In headless mode, we don't need to initialize Excel
                     // Just store the target file path
                     _excelService.StoreDataWithoutExcel(new string[0], _currentWorkflow.ExcelFile);
-                    
+
                     bool isGerman = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
                     string infoTitle = isGerman ? "Information" : "Information";
                     string infoMessage = isGerman
@@ -242,6 +298,9 @@ namespace QRScannerService_GUI.Forms
                 }
                 else
                 {
+                    // Clear any headless mode data before switching to Excel mode
+                    _excelService.ClearHeadlessMode();
+
                     // Open Excel file if not already open
                     _excelService.OpenExcelFile(_currentWorkflow.ExcelFile);
 
@@ -292,7 +351,7 @@ namespace QRScannerService_GUI.Forms
             try
             {
                 _serialPortService.Stop();
-                
+
                 // If in headless mode, save the collected data to Excel
                 if (_isHeadlessMode)
                 {
@@ -302,21 +361,21 @@ namespace QRScannerService_GUI.Forms
                         ? "Möchten Sie die gesammelten Daten jetzt in Excel speichern?"
                         : "Do you want to save the collected data to Excel now?";
 
-                    DialogResult result = MessageBox.Show(confirmMessage, confirmTitle, 
+                    DialogResult result = MessageBox.Show(confirmMessage, confirmTitle,
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    
+
                     if (result == DialogResult.Yes)
                     {
                         try
                         {
                             _excelService.SaveCollectedDataToExcel();
-                            
+
                             string successTitle = isGerman ? "Erfolg" : "Success";
                             string successMessage = isGerman
                                 ? "Daten wurden erfolgreich in Excel gespeichert."
                                 : "Data was successfully saved to Excel.";
-                            
-                            MessageBox.Show(successMessage, successTitle, 
+
+                            MessageBox.Show(successMessage, successTitle,
                                 MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         catch (Exception ex)
@@ -325,8 +384,8 @@ namespace QRScannerService_GUI.Forms
                             string errorMessage = isGerman
                                 ? $"Fehler beim Speichern der Daten: {ex.Message}"
                                 : $"Error saving data: {ex.Message}";
-                            
-                            MessageBox.Show(errorMessage, errorTitle, 
+
+                            MessageBox.Show(errorMessage, errorTitle,
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
@@ -457,7 +516,7 @@ namespace QRScannerService_GUI.Forms
 
                 // Update the UI text
                 LanguageManager.UpdateUIText(this);
-                
+
                 // Update the "Don't open Excel" checkbox text
                 UpdateNoExcelCheckboxText();
 
@@ -645,21 +704,24 @@ namespace QRScannerService_GUI.Forms
                 DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
+                    // Store the new mode setting before stopping the service
+                    bool newHeadlessMode = chkNoExcel.Checked;
+
                     // Stop the service
                     btnStopService_Click(sender, e);
-                    
+
                     // If we were in headless mode and now switching to Excel mode, save the data
-                    if (!chkNoExcel.Checked && _isHeadlessMode && _currentWorkflow != null)
+                    if (!newHeadlessMode && _isHeadlessMode && _currentWorkflow != null)
                     {
                         try
                         {
                             _excelService.SaveCollectedDataToExcel();
-                            
+
                             string successTitle = isGerman ? "Erfolg" : "Success";
                             string successMessage = isGerman
                                 ? "Daten wurden erfolgreich in Excel gespeichert."
                                 : "Data was successfully saved to Excel.";
-                            
+
                             MessageBox.Show(successMessage, successTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         catch (Exception ex)
@@ -668,11 +730,14 @@ namespace QRScannerService_GUI.Forms
                             string errorMessage = isGerman
                                 ? $"Fehler beim Speichern der Daten: {ex.Message}"
                                 : $"Error saving data: {ex.Message}";
-                            
+
                             MessageBox.Show(errorMessage, errorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
-                    
+
+                    // Update the headless mode flag
+                    _isHeadlessMode = newHeadlessMode;
+
                     // Start the service again
                     btnStartService_Click(sender, e);
                 }
@@ -683,6 +748,11 @@ namespace QRScannerService_GUI.Forms
                     chkNoExcel.Checked = _isHeadlessMode;
                     chkNoExcel.CheckedChanged += ChkNoExcel_CheckedChanged;
                 }
+            }
+            else
+            {
+                // If service is not running, just update the headless mode flag
+                _isHeadlessMode = chkNoExcel.Checked;
             }
         }
     }
