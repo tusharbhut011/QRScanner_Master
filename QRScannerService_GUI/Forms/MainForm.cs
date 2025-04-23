@@ -12,6 +12,7 @@ using System.Threading;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
+
 namespace QRScannerService_GUI.Forms
 {
     public partial class MainForm : Form
@@ -24,6 +25,7 @@ namespace QRScannerService_GUI.Forms
         private ContextMenuStrip trayMenu;
         private const string StartupKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
         private bool _isHeadlessMode = false;
+        private System.Timers.Timer _dataExtractionTimer;
 
         // Add this at the class level
         private static string _lastUsedPrefix = string.Empty;
@@ -42,6 +44,11 @@ namespace QRScannerService_GUI.Forms
             _serialPortService = serialPortService ?? throw new ArgumentNullException(nameof(serialPortService));
             _workflowService = workflowService ?? throw new ArgumentNullException(nameof(workflowService));
             _excelService = excelService ?? throw new ArgumentNullException(nameof(excelService));
+
+            // Initialize the data extraction timer
+            _dataExtractionTimer = new System.Timers.Timer(60000); // 1-minute interval
+            _dataExtractionTimer.Elapsed += OnDataExtractionTimerElapsed;
+            _dataExtractionTimer.AutoReset = true;
 
             // Initialize language dropdown
             InitializeLanguageDropdown();
@@ -311,6 +318,7 @@ namespace QRScannerService_GUI.Forms
                 // Initialize and start the serial port service
                 _serialPortService.Initialize(selectedPort, baudRate);
                 _serialPortService.Start();
+                _dataExtractionTimer.Start();
 
                 bool isGermanStatus = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
                 string statusMessage = isGermanStatus
@@ -351,6 +359,7 @@ namespace QRScannerService_GUI.Forms
             try
             {
                 _serialPortService.Stop();
+                _dataExtractionTimer.Stop();
 
                 // If in headless mode, save the collected data to Excel
                 if (_isHeadlessMode)
@@ -494,6 +503,26 @@ namespace QRScannerService_GUI.Forms
             }
         }
 
+        private void OnDataExtractionTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            try
+            {
+                if (_isHeadlessMode)
+                {
+                    // Save collected data to Excel in headless mode
+                    _excelService.SaveCollectedDataToExcel();
+                }
+                else
+                {
+                    // Ensure data is appended to the Excel file in non-headless mode
+                    _excelService.AppendToExcel(new string[0]); // Pass empty data if needed
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error during periodic data extraction: {ex.Message}");
+            }
+        }
         private void InitializeLanguageDropdown()
         {
             // Set the selected language in the dropdown
@@ -612,6 +641,7 @@ namespace QRScannerService_GUI.Forms
                 try
                 {
                     _serialPortService.Stop();
+                    _dataExtractionTimer.Stop();
 
                     // Save collected data to Excel
                     _excelService.SaveCollectedDataToExcel();
