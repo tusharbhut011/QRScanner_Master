@@ -1,74 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\QR Project\\V0\\QRScannerService\\",
+  "WorkspaceRootPath": "D:\\QR Project\\TML\\QRScannerService\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|d:\\qr project\\v0\\qrscannerservice\\qrscannerservice_gui\\forms\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|solutionrelative:qrscannerservice_gui\\forms\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_gui\\helpers\\languagemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|solutionrelative:qrscannerservice_gui\\helpers\\languagemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_core\\services\\excelservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|solutionrelative:qrscannerservice_core\\services\\excelservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_gui\\forms\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|solutionrelative:qrscannerservice_gui\\forms\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Forms\\MainForm.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|solutionrelative:QRScannerService_GUI\\Forms\\MainForm.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2249D4C2-AF4C-407A-BA55-416E5219D139}|QRScannerService_WindowsService\\QRScannerService_WindowsService.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_windowsservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{2249D4C2-AF4C-407A-BA55-416E5219D139}|QRScannerService_WindowsService\\QRScannerService_WindowsService.csproj|d:\\qr project\\tml\\qrscannerservice\\qrscannerservice_windowsservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2249D4C2-AF4C-407A-BA55-416E5219D139}|QRScannerService_WindowsService\\QRScannerService_WindowsService.csproj|solutionrelative:qrscannerservice_windowsservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3FE98C08-E608-4622-93EF-EE35FDF7A736}|QRScannerService_Tests\\QRScannerService_Tests.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_tests\\services\\workflowservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3FE98C08-E608-4622-93EF-EE35FDF7A736}|QRScannerService_Tests\\QRScannerService_Tests.csproj|solutionrelative:qrscannerservice_tests\\services\\workflowservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3FE98C08-E608-4622-93EF-EE35FDF7A736}|QRScannerService_Tests\\QRScannerService_Tests.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_tests\\unittest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3FE98C08-E608-4622-93EF-EE35FDF7A736}|QRScannerService_Tests\\QRScannerService_Tests.csproj|solutionrelative:qrscannerservice_tests\\unittest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_gui\\helpers\\startupmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|solutionrelative:qrscannerservice_gui\\helpers\\startupmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_gui\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|solutionrelative:qrscannerservice_gui\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_core\\models\\workflowconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|solutionrelative:qrscannerservice_core\\models\\workflowconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_core\\interfaces\\iserialportservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|solutionrelative:qrscannerservice_core\\interfaces\\iserialportservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_core\\interfaces\\iworkflowservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|solutionrelative:qrscannerservice_core\\interfaces\\iworkflowservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Interfaces\\IExcelService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|solutionrelative:QRScannerService_Core\\Interfaces\\IExcelService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_core\\services\\workflowservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|solutionrelative:qrscannerservice_core\\services\\workflowservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Services\\SerialPortService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{49FC5EB6-D752-4E2A-A174-E3825990047A}|QRScannerService_Core\\QRScannerService_Core.csproj|solutionrelative:QRScannerService_Core\\Services\\SerialPortService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|D:\\QR Project\\V0\\QRScannerService\\qrscannerservice_gui\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{DDB00F5E-B911-4B78-8255-2F7F156D3B7F}|QRScannerService_GUI\\QRScannerService_GUI.csproj|solutionrelative:qrscannerservice_gui\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
   "DocumentGroupContainers": [
@@ -78,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 313,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -93,211 +29,21 @@
               "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "UnitTest1.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Tests\\UnitTest1.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Tests\\UnitTest1.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Tests\\UnitTest1.cs",
-              "RelativeToolTip": "QRScannerService_Tests\\UnitTest1.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-23T09:08:16.559Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "WorkflowConfig.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Models\\WorkflowConfig.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Core\\Models\\WorkflowConfig.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Models\\WorkflowConfig.cs",
-              "RelativeToolTip": "QRScannerService_Core\\Models\\WorkflowConfig.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:31:05.79Z"
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "MainForm.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Forms\\MainForm.cs",
-              "RelativeDocumentMoniker": "QRScannerService_GUI\\Forms\\MainForm.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Forms\\MainForm.cs",
-              "RelativeToolTip": "QRScannerService_GUI\\Forms\\MainForm.cs",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAewDIAAAAyAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T11:20:09.906Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
               "Title": "Program.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Program.cs",
-              "RelativeDocumentMoniker": "QRScannerService_GUI\\Program.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Program.cs",
-              "RelativeToolTip": "QRScannerService_GUI\\Program.cs",
-              "ViewState": "AgIAADEAAAAAAAAAAAAIwDsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:31:38.813Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "LanguageManager.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Helpers\\LanguageManager.cs",
-              "RelativeDocumentMoniker": "QRScannerService_GUI\\Helpers\\LanguageManager.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Helpers\\LanguageManager.cs",
-              "RelativeToolTip": "QRScannerService_GUI\\Helpers\\LanguageManager.cs",
-              "ViewState": "AgIAAEUAAAAAAAAAAAAowGsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:32:53.849Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ExcelService.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Services\\ExcelService.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Core\\Services\\ExcelService.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Services\\ExcelService.cs",
-              "RelativeToolTip": "QRScannerService_Core\\Services\\ExcelService.cs",
-              "ViewState": "AgIAAFcBAAAAAAAAAAAcwF4BAAApAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T21:53:23.366Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MainForm.cs [Design]",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Forms\\MainForm.cs",
-              "RelativeDocumentMoniker": "QRScannerService_GUI\\Forms\\MainForm.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Forms\\MainForm.cs [Design]",
-              "RelativeToolTip": "QRScannerService_GUI\\Forms\\MainForm.cs [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-23T09:09:35.897Z",
-              "EditorCaption": " [Design]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "StartupManager.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Helpers\\StartupManager.cs",
-              "RelativeDocumentMoniker": "QRScannerService_GUI\\Helpers\\StartupManager.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Helpers\\StartupManager.cs",
-              "RelativeToolTip": "QRScannerService_GUI\\Helpers\\StartupManager.cs",
-              "ViewState": "AgIAAEEAAAAAAAAAAAAuwDAAAAAdAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:33:01.192Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "MainForm.Designer.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Forms\\MainForm.Designer.cs",
-              "RelativeDocumentMoniker": "QRScannerService_GUI\\Forms\\MainForm.Designer.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Forms\\MainForm.Designer.cs",
-              "RelativeToolTip": "QRScannerService_GUI\\Forms\\MainForm.Designer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADoBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-06T11:32:30.1Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "WorkflowServiceTests.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Tests\\Services\\WorkflowServiceTests.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Tests\\Services\\WorkflowServiceTests.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Tests\\Services\\WorkflowServiceTests.cs",
-              "RelativeToolTip": "QRScannerService_Tests\\Services\\WorkflowServiceTests.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAzwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:31:51.097Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_WindowsService\\Program.cs",
+              "DocumentMoniker": "D:\\QR Project\\TML\\QRScannerService\\QRScannerService_WindowsService\\Program.cs",
               "RelativeDocumentMoniker": "QRScannerService_WindowsService\\Program.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_WindowsService\\Program.cs",
+              "ToolTip": "D:\\QR Project\\TML\\QRScannerService\\QRScannerService_WindowsService\\Program.cs",
               "RelativeToolTip": "QRScannerService_WindowsService\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAaAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwAsAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:31:57.64Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "IWorkflowService.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Interfaces\\IWorkflowService.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Core\\Interfaces\\IWorkflowService.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Interfaces\\IWorkflowService.cs",
-              "RelativeToolTip": "QRScannerService_Core\\Interfaces\\IWorkflowService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:31:01.783Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "ISerialPortService.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Interfaces\\ISerialPortService.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Core\\Interfaces\\ISerialPortService.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Interfaces\\ISerialPortService.cs",
-              "RelativeToolTip": "QRScannerService_Core\\Interfaces\\ISerialPortService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAA3AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:31:00.64Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "IExcelService.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Interfaces\\IExcelService.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Core\\Interfaces\\IExcelService.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Interfaces\\IExcelService.cs",
-              "RelativeToolTip": "QRScannerService_Core\\Interfaces\\IExcelService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-06T11:07:32.065Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "SerialPortService.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Services\\SerialPortService.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Core\\Services\\SerialPortService.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Services\\SerialPortService.cs",
-              "RelativeToolTip": "QRScannerService_Core\\Services\\SerialPortService.cs",
-              "ViewState": "AgIAAGMAAAAAAAAAAAAmwHsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-18T12:54:36.544Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "WorkflowService.cs",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Services\\WorkflowService.cs",
-              "RelativeDocumentMoniker": "QRScannerService_Core\\Services\\WorkflowService.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_Core\\Services\\WorkflowService.cs",
-              "RelativeToolTip": "QRScannerService_Core\\Services\\WorkflowService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:31:19.883Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "Form1.cs [Design]",
-              "DocumentMoniker": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Form1.cs",
-              "RelativeDocumentMoniker": "QRScannerService_GUI\\Form1.cs",
-              "ToolTip": "D:\\QR Project\\V0\\QRScannerService\\QRScannerService_GUI\\Form1.cs [Design]",
-              "RelativeToolTip": "QRScannerService_GUI\\Form1.cs [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-20T10:32:12.618Z"
+              "WhenOpened": "2025-05-07T15:50:55.891Z",
+              "EditorCaption": ""
             }
           ]
         }

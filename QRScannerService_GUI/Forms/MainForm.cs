@@ -27,7 +27,7 @@ namespace QRScannerService_GUI.Forms
         private bool _isHeadlessMode = false;
         private System.Timers.Timer _dataExtractionTimer;
 
-        // Add this at the class level
+        // for the class level - use for add new data from new cell of excel file
         private static string _lastUsedPrefix = string.Empty;
 
         public MainForm(ISerialPortService serialPortService, IWorkflowService workflowService, IExcelService excelService)
@@ -35,7 +35,7 @@ namespace QRScannerService_GUI.Forms
             // Set the current UI culture before initializing components
             LanguageManager.SetLanguage(LanguageManager.GetCurrentLanguage());
 
-            InitializeComponent();
+            InitializeComponent(); //basically it's auto generated
 
             // Set "Don't open Excel" checkbox to checked by default
             chkNoExcel.Checked = true;
@@ -46,37 +46,41 @@ namespace QRScannerService_GUI.Forms
             _excelService = excelService ?? throw new ArgumentNullException(nameof(excelService));
 
             // Initialize the data extraction timer
+            // data will be saved every one minute automatically
             _dataExtractionTimer = new System.Timers.Timer(60000); // 1-minute interval
             _dataExtractionTimer.Elapsed += OnDataExtractionTimerElapsed;
             _dataExtractionTimer.AutoReset = true;
 
-            // Initialize language dropdown
+            // Initialize language dropdown for available lanagauges 
+            // English and German
             InitializeLanguageDropdown();
 
-            // Load saved prefix
+            // loads the last used workflow prefix
             LoadSavedPrefix();
 
+            // COM Dropdown will be populaated
+            // COM3 for windows
             PopulateComPorts();
             btnStopService.Enabled = false;
             cmbPortName.Enabled = true; // Ensure the COM port field is enabled
-            _serialPortService.DataReceived += SerialPortService_DataReceived;
+            _serialPortService.DataReceived += SerialPortService_DataReceived; //ensure incoming data from the serial port
             btnAddWorkflow.Click += btnAddWorkflow_Click;
             btnBrowseExcel.Click += btnBrowseExcel_Click;
 
-            // Load existing workflows
+            // Load existing workflows which is selected
             UpdateWorkflowList();
 
             // Initialize system tray icon and menu
             InitializeSystemTray();
 
-            // Handle form closing event
+            // Handle form closing event - "X"
             this.FormClosing += MainForm_FormClosing;
 
             // Initialize auto-start checkbox
-            chkStartWithWindows.Checked = StartupManager.IsStartWithWindowsEnabled();
+            chkStartWithWindows.Checked = StartupManager.IsStartWithWindowsEnabled(); // retrieves the current auto-start setting from the registry and updates the checkbox
             chkStartWithWindows.CheckedChanged += chkStartWithWindows_CheckedChanged;
 
-            // Apply language to UI
+            // Apply language to UI when we switch
             LanguageManager.UpdateUIText(this);
 
             // Update the "Don't open Excel" checkbox text based on language
@@ -119,7 +123,7 @@ namespace QRScannerService_GUI.Forms
 
         private void SerialPortService_DataReceived(object sender, string data)
         {
-            if (this.InvokeRequired)
+            if (this.InvokeRequired) // checks if the current thread is not the UI thread.
             {
                 this.Invoke(new Action<string>(UpdateDataReceived), data);
             }
@@ -128,15 +132,15 @@ namespace QRScannerService_GUI.Forms
                 UpdateDataReceived(data);
 
                 // Parse the QR code data using the custom parser
-                string[] parsedData = ParseQRCodeData(data);
+                string[] parsedData = ParseQRCodeData(data); //splits and maps the raw data into an array of strings, matching the expected Excel columns.
 
                 if (_isHeadlessMode)
                 {
-                    _excelService.StoreDataWithoutExcel(parsedData, _currentWorkflow.ExcelFile);
+                    _excelService.StoreDataWithoutExcel(parsedData, _currentWorkflow.ExcelFile); //without open - data will be stored
                 }
                 else
                 {
-                    _excelService.AppendToExcel(parsedData);
+                    _excelService.AppendToExcel(parsedData); //data store in currently open excel file
                 }
             }
         }
@@ -577,7 +581,7 @@ namespace QRScannerService_GUI.Forms
             // Create tray icon
             trayIcon = new NotifyIcon();
             trayIcon.Text = isGerman ? "QR Scanner Dienst" : "QR Scanner Service";
-            trayIcon.Icon = SystemIcons.Application; // You can replace with your own icon
+            trayIcon.Icon = SystemIcons.Application; // we can replace with our own icon
             trayIcon.ContextMenuStrip = trayMenu;
             trayIcon.Visible = true;
             trayIcon.DoubleClick += OnTrayShowClick;
@@ -678,7 +682,7 @@ namespace QRScannerService_GUI.Forms
             }
         }
 
-        // Add this method to the MainForm class
+   
         public void UpdateTrayMenuText(bool isGerman)
         {
             if (trayMenu.Items.Count >= 5)

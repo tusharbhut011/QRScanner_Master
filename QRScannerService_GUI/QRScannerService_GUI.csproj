@@ -37,7 +37,8 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <ApplicationIcon>uni_marburg_siegel_svg_MQG_icon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <Win32Resource>
@@ -282,7 +283,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
-    <Content Include="uni_marburg_siegel_svg_MQG_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Xunit.DependencyInjection.9.7.1\build\net472\Xunit.DependencyInjection.targets" Condition="Exists('..\packages\Xunit.DependencyInjection.9.7.1\build\net472\Xunit.DependencyInjection.targets')" />

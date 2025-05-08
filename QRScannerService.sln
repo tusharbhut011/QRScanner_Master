@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QRScannerService_GUI", "QRS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QRScannerService_WindowsService", "QRScannerService_WindowsService\QRScannerService_WindowsService.csproj", "{2249D4C2-AF4C-407A-BA55-416E5219D139}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "QRScannerService_Setup", "QRScannerService_Setup\QRScannerService_Setup.vdproj", "{0A6A4807-2900-E24D-D4D6-A3CE0D888375}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,8 +35,13 @@ Global
 		{2249D4C2-AF4C-407A-BA55-416E5219D139}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2249D4C2-AF4C-407A-BA55-416E5219D139}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2249D4C2-AF4C-407A-BA55-416E5219D139}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A6A4807-2900-E24D-D4D6-A3CE0D888375}.Debug|Any CPU.ActiveCfg = Debug
+		{0A6A4807-2900-E24D-D4D6-A3CE0D888375}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6CB2222-A566-41DE-82AC-70F2B6764BBF}
 	EndGlobalSection
 EndGlobal
